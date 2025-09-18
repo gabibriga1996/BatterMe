@@ -1,0 +1,58 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Tt]est[Rr]esult*/
+*.Cache
+*.ilk
+*.pch
+*.pdb
+*.ipdb
+*.iobj
+*.log
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.assets.json
+.nuget/
+
+# Publish
+publish/
+*.Publish.xml
+*.pubxml
+*.pubxml.user
+
+# ClickOnce
+*.application
+*.vsto
+
+# Office/VSTO
+**/obj/Debug/*.vsto
+**/obj/Release/*.vsto
+
+# Resharper/other
+_ReSharper*/
+*.DotSettings.user
+
+# OS
+.DS_Store
+Thumbs.db
