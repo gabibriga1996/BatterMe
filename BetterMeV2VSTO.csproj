@@ -234,6 +234,7 @@
     </Compile>
     <Compile Include="Ribbon1.cs" />
     <Compile Include="Services\OpenAiSummarizer.cs" />
+    <Compile Include="Services\OpenAiTranscriber.cs" />
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -14,6 +14,7 @@ namespace BetterMeV2VSTO
     public class Ribbon1 : Office.IRibbonExtensibility
     {
         private Office.IRibbonUI _ribbon;
+        private string _translateLang = "he"; // default language for translation
 
         public string GetCustomUI(string ribbonID)
         {
@@ -24,11 +25,16 @@ namespace BetterMeV2VSTO
       <tab id='BetterMeTab' label='BetterMe'>
         <group id='BetterMeGroup' label='Actions'>
           <button id='MyActionButton' label='סיכום אוטומטי של מייל' size='large' onAction='OnMyAction' imageMso='SummarizeSelection' />
-          <button id='MyActionButton2' label='תשובות אוטומטיות חכמות' size='large' onAction='OnMyAction2' imageMso='ReplyAll' />
-          <button id='MyActionButton3' label='תמלול מיילים' size='large' onAction='OnMyAction3' imageMso='HappyFace' />
-          <button id='MyActionButton4' label='תרגום מייל' size='large' onAction='OnMyAction4' imageMso='TranslateTranslate' />
-          <button id='MyActionButton5' label='סיכום פגישות מצורפות' size='large' onAction='OnMyAction5' imageMso='MeetingRequest' />
+          <button id='MyActionButton2' label='תשובה אוטומטית חכמה' size='large' onAction='OnMyAction2' imageMso='ReplyAll' />
+          <button id='MyActionButton3' label='כתיבת מייל בעזרת AI' size='large' onAction='OnMyAction3' imageMso='HappyFace' />
+          <button id='MyActionButton4' label='תרגום מייל' size='large' onAction='OnMyAction4' imageMso='TranslateDialog' />
+          <dropDown id='TranslateLang' label='שפה' onAction='OnTranslateLanguageChange'>
+            <item id='he' label='עברית'/>
+            <item id='en' label='אנגלית'/>
+            <item id='ru' label='רוסית'/>
+          </dropDown>
           <button id='MyActionButton6' label='חיפוש חכם' size='large' onAction='OnMyAction6' imageMso='InstantSearch' />
+          <button id='MyActionButton7' label='מיילים שלא נקראו' size='large' onAction='OnMyAction7' imageMso='MarkAsUnread' />
         </group>
       </tab>
     </tabs>
@@ -126,11 +132,61 @@ namespace BetterMeV2VSTO
             }
         }
 
-        public void OnMyAction2(Office.IRibbonControl control)
+        public async void OnMyAction2(Office.IRibbonControl control)
         {
             try
             {
-                MessageBox.Show("Button 2 clicked.", "BetterMeV2VSTO");
+                var app = Globals.ThisAddIn.Application;
+                Outlook.MailItem mail = null;
+                var inspector = app.ActiveInspector();
+                if (inspector != null)
+                {
+                    mail = inspector.CurrentItem as Outlook.MailItem;
+                }
+                else
+                {
+                    var explorer = app.ActiveExplorer();
+                    if (explorer != null)
+                    {
+                        Outlook.Selection selection = explorer.Selection;
+                        if (selection != null && selection.Count > 0)
+                        {
+                            mail = selection[1] as Outlook.MailItem;
+                        }
+                    }
+                }
+
+                if (mail == null)
+                {
+                    MessageBox.Show("אנא בחר הודעת מייל שברצונך להשיב לה", "BetterMeV2VSTO");
+                    return;
+                }
+
+                // Prepare content and key
+                var plain = !string.IsNullOrEmpty(mail.Body) ? mail.Body : StripHtml(mail.HTMLBody ?? string.Empty);
+                var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+                if (string.IsNullOrWhiteSpace(apiKey))
+                {
+                    MessageBox.Show("חסר מפתח API של OpenAI (משתנה סביבה OPENAI_API_KEY)", "BetterMeV2VSTO");
+                    return;
+                }
+
+                // Compose smart reply with OpenAI
+                string aiReply;
+                try
+                {
+                    aiReply = await OpenAiSummarizer.ComposeReplyAsync(mail.Subject ?? string.Empty, plain, apiKey);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("שגיאה ביצירת תשובה באמצעות OpenAI: " + ex.Message, "BetterMeV2VSTO");
+                    return;
+                }
+
+                // Open a reply prefilled with AI suggestion (user can edit before sending)
+                var reply = mail.Reply();
+                reply.HTMLBody = "<div style='direction:rtl;text-align:right;white-space:pre-wrap;'>" + HtmlEncode(aiReply) + "</div><br/>" + reply.HTMLBody;
+                reply.Display(true);
             }
             catch (Exception ex)
             {
@@ -138,11 +194,58 @@ namespace BetterMeV2VSTO
             }
         }
 
-        public void OnMyAction3(Office.IRibbonControl control)
+        // Button 3: Write email with AI - opens a new email, user writes a draft, pressing again improves it
+        public async void OnMyAction3(Office.IRibbonControl control)
         {
             try
             {
-                MessageBox.Show("Button 3 clicked.", "BetterMeV2VSTO");
+                var app = Globals.ThisAddIn.Application;
+                var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+                if (string.IsNullOrWhiteSpace(apiKey))
+                {
+                    MessageBox.Show("חסר מפתח API של OpenAI (משתנה סביבה OPENAI_API_KEY)", "BetterMeV2VSTO");
+                    return;
+                }
+
+                var inspector = app.ActiveInspector();
+                var current = inspector != null ? inspector.CurrentItem as Outlook.MailItem : null;
+                var isCompose = current != null && !current.Sent && current.Sender == null; // heuristic for compose window
+
+                if (!isCompose)
+                {
+                    // Open a new compose window with instructions
+                    var newMail = (Outlook.MailItem)app.CreateItem(Outlook.OlItemType.olMailItem);
+                    newMail.Subject = "טיוטת מייל חדש";
+                    newMail.HTMLBody = "<div style='direction:rtl;text-align:right'>כתוב כאן טיוטה ראשונית, ואז לחץ שוב על 'כתיבת מייל בעזרת AI' לשיפור הנוסח.</div>";
+                    newMail.Display(true);
+                    return;
+                }
+
+                // Improve the current draft
+                var draftPlain = !string.IsNullOrEmpty(current.Body) ? current.Body : StripHtml(current.HTMLBody ?? string.Empty);
+                if (string.IsNullOrWhiteSpace(draftPlain) || draftPlain.IndexOf("כתוב כאן", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    MessageBox.Show("כתוב טיוטה ואז לחץ שוב לשיפור הנוסח", "BetterMeV2VSTO");
+                    return;
+                }
+
+                string improved;
+                try
+                {
+                    improved = await OpenAiSummarizer.ImproveDraftAsync(draftPlain, apiKey);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("שגיאה בשיפור הטיוטה באמצעות OpenAI: " + ex.Message, "BetterMeV2VSTO");
+                    return;
+                }
+
+                var improvedHtml = "<div data-bme-improved=\"1\" style=\"direction:rtl;text-align:right;white-space:pre-wrap;border:1px solid #ddd;padding:10px;background:#f6fbff;\">" +
+                                   HtmlEncode(improved) + "</div><br/>" +
+                                   "<div style=\"direction:rtl;text-align:right;color:#777;border-top:1px dashed #ccc;margin-top:8px;padding-top:8px\">" +
+                                   "הטיוטה המקורית:\n" + HtmlEncode(draftPlain) + "</div>";
+                current.HTMLBody = improvedHtml;
+                current.Display(true);
             }
             catch (Exception ex)
             {
@@ -154,7 +257,33 @@ namespace BetterMeV2VSTO
         {
             try
             {
-                MessageBox.Show("Button 4 clicked.", "BetterMeV2VSTO");
+                var app = Globals.ThisAddIn.Application;
+                Outlook.MailItem mail = null;
+                var inspector = app.ActiveInspector();
+                if (inspector != null)
+                {
+                    mail = inspector.CurrentItem as Outlook.MailItem;
+                }
+                else
+                {
+                    var explorer = app.ActiveExplorer();
+                    if (explorer != null)
+                    {
+                        Outlook.Selection selection = explorer.Selection;
+                        if (selection != null && selection.Count > 0)
+                        {
+                            mail = selection[1] as Outlook.MailItem;
+                        }
+                    }
+                }
+
+                if (mail == null)
+                {
+                    MessageBox.Show("אנא בחר הודעת מייל שברצונך לתרגם", "BetterMeV2VSTO");
+                    return;
+                }
+
+                TranslateAndInsertAsync(mail);
             }
             catch (Exception ex)
             {
@@ -162,27 +291,53 @@ namespace BetterMeV2VSTO
             }
         }
 
-        public void OnMyAction5(Office.IRibbonControl control)
+        public void OnTranslateLanguageChange(Office.IRibbonControl control, string selectedId, int selectedIndex)
         {
-            try
+            // selectedId is one of he/en/ru
+            if (!string.IsNullOrEmpty(selectedId))
             {
-                MessageBox.Show("Button 5 clicked.", "BetterMeV2VSTO");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "BetterMeV2VSTO");
+                _translateLang = selectedId;
             }
         }
 
-        public void OnMyAction6(Office.IRibbonControl control)
+        private async void TranslateAndInsertAsync(Outlook.MailItem mail)
         {
+            var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                MessageBox.Show("חסר מפתח API של OpenAI (משתנה סביבה OPENAI_API_KEY)", "BetterMeV2VSTO");
+                return;
+            }
+
+            var plain = !string.IsNullOrEmpty(mail.Body) ? mail.Body : StripHtml(mail.HTMLBody ?? string.Empty);
+            string translated;
             try
             {
-                MessageBox.Show("Button 6 clicked.", "BetterMeV2VSTO");
+                translated = await OpenAiSummarizer.TranslateAsync(plain, _translateLang ?? "he", apiKey);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "BetterMeV2VSTO");
+                MessageBox.Show("שגיאה בתרגום באמצעות OpenAI: " + ex.Message, "BetterMeV2VSTO");
+                return;
+            }
+
+            var langLabel = _translateLang == "he" ? "עברית" : _translateLang == "en" ? "אנגלית" : "רוסית";
+            var heading = "תרגום (" + langLabel + ")";
+            var html = "<div data-bme-translate=\"1\" style=\"border:1px solid #ddd;padding:10px;margin:10px 0;background:#f0fff0;direction:rtl;text-align:right;\">" +
+                       "<div style=\"font-weight:bold;margin-bottom:6px;\">" + HtmlEncode(heading) + "</div>" +
+                       "<div style=\"white-space:pre-wrap;\">" + HtmlEncode(translated) + "</div>" +
+                       "</div>";
+
+            var htmlBody = mail.HTMLBody;
+            if (string.IsNullOrEmpty(htmlBody))
+            {
+                htmlBody = "<html><body>" + HtmlEncode(mail.Body ?? string.Empty).Replace("\n", "<br/>") + "</body></html>";
+            }
+
+            if (!htmlBody.Contains("data-bme-translate=\"1\""))
+            {
+                var combined = InsertSummaryIntoHtml(htmlBody, html);
+                mail.HTMLBody = combined;
             }
         }
 
