@@ -9,7 +9,6 @@ namespace BetterMeV2VSTO.Services
 {
     public static class OpenAiSummarizer
     {
-        // Ensure TLS 1.2 for HTTPS to api.openai.com
         static OpenAiSummarizer()
         {
             try
@@ -20,72 +19,98 @@ namespace BetterMeV2VSTO.Services
             catch { }
         }
 
-        // Summarize email content using OpenAI Chat Completions API (no external NuGet; uses HttpWebRequest)
+        private const string DefaultModel = "openai/gpt-oss-120b";
+        private const string ApiUrl = "https://openrouter.ai/api/v1/chat/completions";
+
+        private static string TrimToCompleteSentence(string text, int maxChars)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= maxChars) return text;
+            var slice = text.Substring(0, maxChars);
+            int last = slice.LastIndexOfAny(new[] {'.', '!', '?', '\n', ';'});
+            if (last > maxChars * 0.5) slice = slice.Substring(0, last + 1);
+            return slice;
+        }
+
+        private static string ValidateAndNormalizeBody(string body)
+        {
+            if (string.IsNullOrEmpty(body)) return string.Empty;
+            var originalLen = body.Length;
+            body = body.Replace('\r', '\n');
+            body = Regex.Replace(body, "[\x00-\x08\x0B\x0C\x0E-\x1F]", "");
+            body = Regex.Replace(body, @"^>+\s*", "> ", RegexOptions.Multiline);
+            body = Regex.Replace(body, "\n{3,}", "\n\n");
+            body = body.Trim();
+            if (originalLen > 0 && body.Length < originalLen * 0.3)
+                return TrimToCompleteSentence(body, 14000);
+            return body;
+        }
+
         public static async Task<string> SummarizeEmailAsync(string subject, string body, string apiKey)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing OpenAI API key.");
+                throw new InvalidOperationException("Missing AI API key.");
 
-            // Trim excessively long inputs
-            var maxChars = 12000; // keep within token limits
-            if (!string.IsNullOrEmpty(body) && body.Length > maxChars)
-                body = body.Substring(0, maxChars);
+            body = ValidateAndNormalizeBody(body ?? string.Empty);
+            body = TrimToCompleteSentence(body, 14000);
 
-            var systemPrompt = "You are a helpful assistant that summarizes emails in Hebrew. Return a concise summary in Hebrew with: a short title, 3-7 bullet points of key information, and any action items or deadlines if mentioned. Keep it clear and readable.";
+            var systemPrompt = "You are a professional email summarizer. Write a concise, coherent, and professional summary in Hebrew without bullets, asterisks, or fragmented sentences. Focus on: main message, primary purpose, time/location details (if any), and important action items. Output as 3-5 complete sentences in executive summary style. The summary must be continuous, without breaks or incomplete phrasings.";
 
             var userPrompt = new StringBuilder();
-            userPrompt.AppendLine("סכם בבקשה את המייל הבא בעברית תמציתית:");
-            if (!string.IsNullOrWhiteSpace(subject))
-            {
-                userPrompt.AppendLine("נושא: " + subject);
-            }
+            userPrompt.AppendLine("כתוב תקציר מקצועי, ברור ורציף של תוכן המייל להלן.");
+            userPrompt.AppendLine("התקציר צריך להיות מנוסח בשפה רשמית, ללא חזרות או קטעים קטועים, באורך של 3–5 משפטים.");
+            userPrompt.AppendLine("התמקד במסר המרכזי, מטרה עיקרית, פרטי זמן/מיקום (אם יש), והנחיות חשובות לפעולה.");
+            userPrompt.AppendLine("אל תכניס ניחושים או מידע שלא מופיע בטקסט.");
+            userPrompt.AppendLine("ציין זאת בצורה תמציתית כאילו מדובר בסיכום מנהלים (Executive Summary).");
+            userPrompt.AppendLine("התקציר חייב להיות רציף, ללא קטיעות או ניסוחים לא גמורים.");
+            if (!string.IsNullOrWhiteSpace(subject)) userPrompt.AppendLine("נושא: " + subject);
             userPrompt.AppendLine("תוכן:");
-            userPrompt.AppendLine(body ?? string.Empty);
+            userPrompt.AppendLine(body);
 
             var requestJson = BuildChatRequestJson(
-                model: "gpt-4o-mini",
+                model: DefaultModel,
                 temperature: 0.2,
-                maxTokens: 600,
+                maxTokens: 800,
                 systemPrompt: systemPrompt,
                 userPrompt: userPrompt.ToString());
 
-            return await PostChatAsync(requestJson, apiKey, "OpenAI returned empty summary.");
+            var result = await PostChatAsync(requestJson, apiKey, "Empty summary returned.");
+            if (!string.IsNullOrWhiteSpace(result) && !Regex.IsMatch(result.TrimEnd(), "[.!?]$"))
+                result += ".";
+            return result;
         }
 
-        // Compose a smart reply in Hebrew for the given email
         public static async Task<string> ComposeReplyAsync(string subject, string body, string apiKey)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing OpenAI API key.");
+                throw new InvalidOperationException("Missing AI API key.");
 
-            var maxChars = 12000;
-            if (!string.IsNullOrEmpty(body) && body.Length > maxChars)
-                body = body.Substring(0, maxChars);
+            body = ValidateAndNormalizeBody(body ?? string.Empty);
+            body = TrimToCompleteSentence(body, 14000);
 
-            var systemPrompt = "אתה עוזר שמנסח תשובת אימייל קצרה, מנומסת וברורה בעברית. כתוב טיוטת תשובה מוכנה לשליחה, עם פתיח כללי, התייחסות לנקודות המרכזיות, שאלות הבהרה אם צריך, וסגירה קצרה. הימנע מחזרות וכתוב תמציתי.";
+            var systemPrompt = "אתה עוזר בכתיבת תשובות אימייל בעברית. צור תשובה מקצועית, נעימה, תמציתית וברורה; כלול פתיח ידידותי, התייחסות לנקודות המרכזיות, צעדים הבאים אם רלוונטי וסיום קצר. אין לחזור על משפטים או להוסיף אזהרות מיותרות. אל תשתמש בטבלאות, קווים אנכיים '|', Markdown, כוכביות או מקפים בתחילת שורה כרשימות. כתוב פסקאות רגילות בלבד עם שורות חדשות במידת הצורך. התשובה חייבת להיות רציפה וגמורה.";
 
             var userPrompt = new StringBuilder();
-            userPrompt.AppendLine("נסח בבקשה תשובה אוטומטית חכמה למייל הבא:");
-            if (!string.IsNullOrWhiteSpace(subject))
-                userPrompt.AppendLine("נושא: " + subject);
-            userPrompt.AppendLine("תוכן:");
-            userPrompt.AppendLine(body ?? string.Empty);
+            if (!string.IsNullOrWhiteSpace(subject)) userPrompt.AppendLine("נושא: " + subject);
+            userPrompt.AppendLine("תוכן המייל למענה:");
+            userPrompt.AppendLine(body);
 
             var requestJson = BuildChatRequestJson(
-                model: "gpt-4o-mini",
+                model: DefaultModel,
                 temperature: 0.3,
-                maxTokens: 500,
+                maxTokens: 650,
                 systemPrompt: systemPrompt,
                 userPrompt: userPrompt.ToString());
 
-            return await PostChatAsync(requestJson, apiKey, "OpenAI returned empty reply.");
+            var result = await PostChatAsync(requestJson, apiKey, "Empty reply returned.");
+            if (!string.IsNullOrWhiteSpace(result) && !Regex.IsMatch(result.TrimEnd(), "[.!?]$"))
+                result += ".";
+            return result;
         }
 
-        // Translate plain text to Hebrew/English/Russian
         public static async Task<string> TranslateAsync(string text, string targetLangCode, string apiKey)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing OpenAI API key.");
+                throw new InvalidOperationException("Missing AI API key.");
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
 
@@ -99,71 +124,64 @@ namespace BetterMeV2VSTO.Services
                 case "en-gb": langName = "English"; break;
                 case "ru":
                 case "ru-ru": langName = "Russian"; break;
-                default:
-                    throw new ArgumentException("Unsupported language. Use he, en or ru.", nameof(targetLangCode));
+                default: throw new ArgumentException("Unsupported language. Use he, en or ru.", nameof(targetLangCode));
             }
 
             var systemPrompt = "You are a professional translator. Translate the user's message into " + langName + ". Preserve meaning, tone, and lists. Do not include explanations, only the translated text.";
-            var userPrompt = text;
-
             var requestJson = BuildChatRequestJson(
-                model: "gpt-4o-mini",
+                model: DefaultModel,
                 temperature: 0.2,
                 maxTokens: 1200,
                 systemPrompt: systemPrompt,
-                userPrompt: userPrompt);
+                userPrompt: text);
 
-            return await PostChatAsync(requestJson, apiKey, "OpenAI returned empty translation.");
+            return await PostChatAsync(requestJson, apiKey, "Empty translation returned.");
         }
 
-        // Improve a user's email draft into a more professional, clear message (keeps original language)
         public static async Task<string> ImproveDraftAsync(string draft, string apiKey)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing OpenAI API key.");
-            if (string.IsNullOrWhiteSpace(draft))
-                return string.Empty;
+                throw new InvalidOperationException("Missing AI API key.");
+            if (string.IsNullOrWhiteSpace(draft)) return string.Empty;
 
-            var maxChars = 12000;
-            if (draft.Length > maxChars)
-                draft = draft.Substring(0, maxChars);
+            draft = ValidateAndNormalizeBody(draft);
+            draft = TrimToCompleteSentence(draft, 12000);
 
             var systemPrompt = "You are an expert email editor. Rewrite the user's email draft in the SAME LANGUAGE as the draft, making it concise, polite, and professional. Preserve meaning and key details. Return only the improved email text without explanations.";
-
             var requestJson = BuildChatRequestJson(
-                model: "gpt-4o-mini",
+                model: DefaultModel,
                 temperature: 0.3,
                 maxTokens: 800,
                 systemPrompt: systemPrompt,
                 userPrompt: draft);
 
-            return await PostChatAsync(requestJson, apiKey, "OpenAI returned empty improved draft.");
+            return await PostChatAsync(requestJson, apiKey, "Empty improved draft returned.");
         }
 
-        // --- shared helpers ---
         private static string BuildChatRequestJson(string model, double temperature, int maxTokens, string systemPrompt, string userPrompt)
         {
-            return "{" +
-                "\"model\":" + JsonEscape(model) + "," +
-                "\"temperature\":" + temperature.ToString(System.Globalization.CultureInfo.InvariantCulture) + "," +
-                "\"max_tokens\":" + maxTokens + "," +
-                "\"messages\":[{" +
-                    "\"role\":\"system\",\"content\":" + JsonEscape(systemPrompt) + "},{" +
-                    "\"role\":\"user\",\"content\":" + JsonEscape(userPrompt) +
-                "}]" +
-            "}";
+            var sb = new StringBuilder();
+            sb.Append("{");
+            sb.Append("\"model\":").Append(JsonEscape(model)).Append(',');
+            sb.Append("\"temperature\":").Append(temperature.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append(',');
+            sb.Append("\"max_tokens\":").Append(maxTokens).Append(',');
+            sb.Append("\"messages\":[");
+            sb.Append("{\"role\":\"system\",\"content\":").Append(JsonEscape(systemPrompt)).Append("},");
+            sb.Append("{\"role\":\"user\",\"content\":").Append(JsonEscape(userPrompt)).Append("}");
+            sb.Append("]}");
+            return sb.ToString();
         }
 
         private static async Task<string> PostChatAsync(string requestJson, string apiKey, string emptyError)
         {
-            var request = (HttpWebRequest)WebRequest.Create("https://api.openai.com/v1/chat/completions");
+            var request = (HttpWebRequest)WebRequest.Create(ApiUrl);
             request.Method = "POST";
             request.ContentType = "application/json";
             request.Headers["Authorization"] = "Bearer " + apiKey;
             request.Timeout = 60000;
             request.ReadWriteTimeout = 60000;
             request.KeepAlive = true;
-            request.ProtocolVersion = HttpVersion.Version11; // TLS over HTTP/1.1
+            request.ProtocolVersion = HttpVersion.Version11;
 
             var payload = Encoding.UTF8.GetBytes(requestJson);
             using (var reqStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
@@ -201,7 +219,6 @@ namespace BetterMeV2VSTO.Services
                     }
                 }
 
-                // Friendly error messages
                 var msg = BuildFriendlyError(serverError, statusCode, wex.Message);
                 throw new InvalidOperationException(msg, wex);
             }
@@ -213,19 +230,19 @@ namespace BetterMeV2VSTO.Services
             if (!string.IsNullOrEmpty(text))
             {
                 if (text.IndexOf("insufficient_quota", StringComparison.OrdinalIgnoreCase) >= 0)
-                    return "אין יתרה בחשבון OpenAI. בדוק חיוב/מנוי או השתמש במפתח אחר.";
+                    return "אין יתרה בחשבון AI. בדוק חיוב/מנוי או השתמש במפתח אחר.";
                 if (text.IndexOf("invalid_api_key", StringComparison.OrdinalIgnoreCase) >= 0 || (status == 401))
-                    return "מפתח OpenAI לא תקין או לא מאושר.";
+                    return "מפתח API לא תקין או לא מאושר.";
                 if (text.IndexOf("rate_limit", StringComparison.OrdinalIgnoreCase) >= 0 || status == 429)
                     return "חריגה ממגבלת קצב. נסה שוב בעוד רגע.";
                 if (text.IndexOf("content_management_policy", StringComparison.OrdinalIgnoreCase) >= 0)
-                    return "תוכן נחסם לפי מדיניות. ערוך את הטקסט ונסה שוב.";
+                    return "תוכן נחסם לפי מדיניות.";
             }
             if (status == 403)
-                return "גישה נחסמה (403). ודא הרשאות וחומת אש/פרוקסי.";
+                return "גישה נחסמה (403).";
             if (status == 408 || status == 504)
                 return "תם הזמן לבקשה. נסה שוב.";
-            return "OpenAI error: " + (string.IsNullOrEmpty(serverError) ? fallback : serverError);
+            return "AI error: " + (string.IsNullOrEmpty(serverError) ? fallback : serverError);
         }
 
         private static string JsonEscape(string s)
@@ -263,8 +280,7 @@ namespace BetterMeV2VSTO.Services
         private static string ExtractFirstMessageContent(string json)
         {
             if (string.IsNullOrEmpty(json)) return null;
-            // Very simple extraction of the first choices[0].message.content
-            var m = Regex.Match(json, @"""content""\s*:\s*""(.*?)""", RegexOptions.Singleline);
+            var m = Regex.Match(json, "\"content\"\\s*:\\s*\"(.*?)\"", RegexOptions.Singleline);
             if (!m.Success) return null;
             return JsonUnescape(m.Groups[1].Value);
         }
@@ -300,15 +316,10 @@ namespace BetterMeV2VSTO.Services
                                 }
                             }
                             break;
-                        default:
-                            sb.Append(n);
-                            break;
+                        default: sb.Append(n); break;
                     }
                 }
-                else
-                {
-                    sb.Append(c);
-                }
+                else sb.Append(c);
             }
             return sb.ToString();
         }
