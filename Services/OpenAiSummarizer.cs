@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace BetterMeV2VSTO.Services
 {
@@ -53,7 +54,7 @@ namespace BetterMeV2VSTO.Services
             body = ValidateAndNormalizeBody(body ?? string.Empty);
             body = TrimToCompleteSentence(body, 14000);
 
-            var systemPrompt = "You are a professional email summarizer. Write a concise, coherent, and professional summary in Hebrew without bullets, asterisks, or fragmented sentences. Focus on: main message, primary purpose, time/location details (if any), and important action items. Output as 3-5 complete sentences in executive summary style. The summary must be continuous, without breaks or incomplete phrasings.";
+            var systemPrompt = "You are a professional email summarizer. Write a concise, coherent, and professional summary in Hebrew without bullets, asterisks, or fragmented sentences. Focus on: main message, primary purpose, time/location details (if any), and important action items. Output as 3-5 complete sentences in executive summary style. The summary must be continuous, without breaks or incomplete phrasings. Each sentence must be complete and end with a period.";
 
             var userPrompt = new StringBuilder();
             userPrompt.AppendLine("כתוב תקציר מקצועי, ברור ורציף של תוכן המייל להלן.");
@@ -62,6 +63,7 @@ namespace BetterMeV2VSTO.Services
             userPrompt.AppendLine("אל תכניס ניחושים או מידע שלא מופיע בטקסט.");
             userPrompt.AppendLine("ציין זאת בצורה תמציתית כאילו מדובר בסיכום מנהלים (Executive Summary).");
             userPrompt.AppendLine("התקציר חייב להיות רציף, ללא קטיעות או ניסוחים לא גמורים.");
+            userPrompt.AppendLine("כל משפט חייב להיות מלא ומסתיים בנקודה. אל תסיים משפטים באמצע מילה או ביטוי. אין להשתמש בקיצור 'דוא' – יש לכתוב תמיד 'דוא״ל' מלא.");
             if (!string.IsNullOrWhiteSpace(subject)) userPrompt.AppendLine("נושא: " + subject);
             userPrompt.AppendLine("תוכן:");
             userPrompt.AppendLine(body);
@@ -76,6 +78,8 @@ namespace BetterMeV2VSTO.Services
             var result = await PostChatAsync(requestJson, apiKey, "Empty summary returned.");
             if (!string.IsNullOrWhiteSpace(result) && !Regex.IsMatch(result.TrimEnd(), "[.!?]$"))
                 result += ".";
+            // Post-process to enforce continuity ("התקציר חייב להיות רציף, ללא קטיעות או ניסוחים לא גמורים")
+            result = PostProcessExecutiveSummary(result);
             return result;
         }
 
@@ -156,6 +160,48 @@ namespace BetterMeV2VSTO.Services
                 userPrompt: draft);
 
             return await PostChatAsync(requestJson, apiKey, "Empty improved draft returned.");
+        }
+
+        public static async Task<string> ComposeNewEmailAsync(string userText, string apiKey, string style = "professional")
+        {
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new InvalidOperationException("Missing AI API key.");
+            if (string.IsNullOrWhiteSpace(userText))
+                return string.Empty;
+
+            userText = ValidateAndNormalizeBody(userText);
+            userText = TrimToCompleteSentence(userText, 12000);
+
+            string systemPrompt;
+            string userPrompt;
+
+            switch (style.ToLowerInvariant())
+            {
+                case "concise":
+                    systemPrompt = "אתה עוזר בכתיבת מיילים בעברית. נסח מחדש את הטקסט כך שיהיה קצר ותמציתי יותר, תוך שמירה על הטון המקצועי והמסר המרכזי. הימנע מפירוט מיותר.";
+                    userPrompt = "נסח את המייל מחדש כך שיהיה קצר ותמציתי יותר:\n" + userText;
+                    break;
+                case "expanded":
+                    systemPrompt = "אתה עוזר בכתיבת מיילים בעברית. נסח מחדש את הטקסט כך שיהיה מפורט ומוסבר יותר, תוך הוספת הקשר ופרטים רלוונטיים. שמור על טון מקצועי.";
+                    userPrompt = "נסח את המייל מחדש כך שיהיה מפורט ומוסבר יותר:\n" + userText;
+                    break;
+                default: // professional
+                    systemPrompt = "אתה עוזר מקצועי בכתיבת מיילים בעברית. נסח מחדש את הטקסט כך שיהיה רשמי, ברור ומקצועי. ודא שהטקסט רציף, ללא חיתוכים, וכתוב בעברית תקנית. אל תוסיף חתימה - זה יתווסף בנפרד.";
+                    userPrompt = "נסח מחדש את תוכן המייל שלהלן כך שיהיה רשמי, ברור ומקצועי:\n" + userText;
+                    break;
+            }
+
+            var requestJson = BuildChatRequestJson(
+                model: DefaultModel,
+                temperature: 0.3,
+                maxTokens: 800,
+                systemPrompt: systemPrompt,
+                userPrompt: userPrompt);
+
+            var result = await PostChatAsync(requestJson, apiKey, "Empty email composition returned.");
+            if (!string.IsNullOrWhiteSpace(result) && !Regex.IsMatch(result.TrimEnd(), "[.!?]$"))
+                result += ".";
+            return result;
         }
 
         private static string BuildChatRequestJson(string model, double temperature, int maxTokens, string systemPrompt, string userPrompt)
@@ -322,6 +368,103 @@ namespace BetterMeV2VSTO.Services
                 else sb.Append(c);
             }
             return sb.ToString();
+        }
+
+        private static string PostProcessExecutiveSummary(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return text;
+            
+            // Remove bullet characters and asterisks at line starts
+            var cleaned = Regex.Replace(text, @"^[*•\-\u2022]+\s*", string.Empty, RegexOptions.Multiline);
+            
+            // Replace line breaks with spaces (continuous flow)
+            cleaned = cleaned.Replace("\r", " ").Replace("\n", " ");
+            
+            // Collapse multiple spaces
+            cleaned = Regex.Replace(cleaned, @"\s{2,}", " ").Trim();
+            
+            // Remove stray trailing punctuation sequences but preserve single periods
+            cleaned = Regex.Replace(cleaned, @"[\.;:,\-]{2,}$", ".").Trim();
+            
+            // If the text is already well-formed and under reasonable length, return as-is
+            if (cleaned.Length < 500 && Regex.IsMatch(cleaned, @"[.!?]$"))
+            {
+                // Still fix truncated short last word like "עו." (likely cut off abbreviation)
+                cleaned = FixTruncatedEnding(cleaned, originalHadPunctuation: true);
+                return cleaned;
+            }
+            
+            // Split into sentences more carefully to avoid cutting mid-word
+            var sentences = Regex.Split(cleaned, @"(?<=[.!?])\s+(?=[A-Za-zא-ת])");
+            var filtered = new System.Collections.Generic.List<string>();
+            
+            foreach (var sentence in sentences)
+            {
+                var trimmed = sentence.Trim();
+                if (string.IsNullOrEmpty(trimmed)) continue;
+                
+                // Skip very short fragments unless they're complete
+                if (trimmed.Length < 10 && !Regex.IsMatch(trimmed, @"[.!?]$")) continue;
+                
+                // Ensure proper sentence ending
+                if (!Regex.IsMatch(trimmed, @"[.!?]$")) 
+                {
+                    // Only add period if it doesn't end with incomplete word
+                    if (!trimmed.EndsWith(" ") && !Regex.IsMatch(trimmed, @"\s+$"))
+                        trimmed += ".";
+                }
+                
+                filtered.Add(trimmed);
+            }
+            
+            // If no good sentences found, return original cleaned text
+            if (filtered.Count == 0)
+            {
+                if (!Regex.IsMatch(cleaned.TrimEnd(), @"[.!?]$")) cleaned += ".";
+                cleaned = FixTruncatedEnding(cleaned, originalHadPunctuation: false);
+                return cleaned;
+            }
+            
+            // Limit to first 5 sentences to avoid overly long summaries
+            if (filtered.Count > 5) 
+                filtered = filtered.GetRange(0, 5);
+            
+            // Join sentences with spaces
+            var result = string.Join(" ", filtered);
+            
+            // Final cleanup: ensure proper ending
+            if (!Regex.IsMatch(result.TrimEnd(), @"[.!?]$")) 
+                result += ".";
+            
+            result = FixTruncatedEnding(result, originalHadPunctuation: true);
+            return result;
+        }
+
+        // Detect and fix truncated final word (e.g., ends with "עו.")
+        private static string FixTruncatedEnding(string text, bool originalHadPunctuation)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return text;
+            var trimmed = text.TrimEnd();
+            // Match last short Hebrew token of length 1-3 that ends the string and followed by period (e.g., "עו.")
+            var m = Regex.Match(trimmed, @"(?<=\s|^)([א-ת]{1,3})\.$");
+            if (m.Success)
+            {
+                // Whitelist of legitimate short words that can appear at end (rare). If not in whitelist, treat as truncation.
+                var token = m.Groups[1].Value;
+                var whitelist = new HashSet<string>(StringComparer.Ordinal)
+                {
+                    "כן","לא" // add known valid short endings if needed
+                };
+                if (!whitelist.Contains(token))
+                {
+                    // Remove the truncated token
+                    trimmed = trimmed.Substring(0, trimmed.Length - (token.Length + 1)).TrimEnd();
+                    // Ensure final punctuation remains valid
+                    if (!Regex.IsMatch(trimmed, @"[.!?]$")) trimmed += ".";
+                    return trimmed;
+                }
+            }
+            return trimmed;
         }
     }
 }
