@@ -1,4 +1,4 @@
-using System;
+ο»Ώusing System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Text;
@@ -72,14 +72,14 @@ namespace BetterMeV2VSTO
             {
                 if (!System.Text.RegularExpressions.Regex.IsMatch(key, "^sk-or-v1-[a-fA-F0-9]{64}$"))
                 {
-                    MessageBox.Show("δξτϊη ωρετχ ΰιπε ατεψξθ φτει (sk-or-v1-........64 hex).", "BetterMeV2VSTO");
+                    MessageBox.Show("Χ”ΧΧ¤ΧªΧ— Χ©Χ΅Χ•Χ¤Χ§ ΧΧ™Χ Χ• Χ‘Χ¤Χ•Χ¨ΧΧ Χ¦Χ¤Χ•Χ™ (sk-or-v1-........64 hex).", "BetterMeV2VSTO");
                     key = PromptForApiKey();
                 }
             }
 
             if (string.IsNullOrWhiteSpace(key))
             {
-                MessageBox.Show("μΰ δεβγψ ξτϊη API εμλο δτςεμδ ϊαεθμ.", "BetterMeV2VSTO");
+                MessageBox.Show("ΧΧ Χ”Χ•Χ’Χ“Χ¨ ΧΧ¤ΧªΧ— API ΧΧ›Χ Χ”Χ¤ΧΆΧ•ΧΧ” ΧªΧ‘Χ•ΧΧ.", "BetterMeV2VSTO");
             }
             else
             {
@@ -102,14 +102,14 @@ namespace BetterMeV2VSTO
             {
                 using (var form = new Form())
                 {
-                    form.Text = "δβγψϊ ξτϊη API";
+                    form.Text = "Χ”Χ’Χ“Χ¨Χª ΧΧ¤ΧªΧ— API";
                     form.Width = 480; form.Height = 180; form.StartPosition = FormStartPosition.CenterScreen;
                     form.FormBorderStyle = FormBorderStyle.FixedDialog; form.MinimizeBox = false; form.MaximizeBox = false;
 
-                    var lbl = new Label { Left = 12, Top = 15, Width = 440, Text = "δλπρ ξτϊη OpenRouter (sk-or-...):" };
+                    var lbl = new Label { Left = 12, Top = 15, Width = 440, Text = "Χ”Χ›Χ Χ΅ ΧΧ¤ΧªΧ— OpenRouter (sk-or-...):" };
                     var txt = new TextBox { Left = 12, Top = 40, Width = 440, Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top };
-                    var btnOk = new Button { Text = "ωξιψδ", Left = 270, Width = 90, Top = 80, DialogResult = DialogResult.OK };
-                    var btnCancel = new Button { Text = "αιθεμ", Left = 362, Width = 90, Top = 80, DialogResult = DialogResult.Cancel };
+                    var btnOk = new Button { Text = "Χ©ΧΧ™Χ¨Χ”", Left = 270, Width = 90, Top = 80, DialogResult = DialogResult.OK };
+                    var btnCancel = new Button { Text = "Χ‘Χ™ΧΧ•Χ", Left = 362, Width = 90, Top = 80, DialogResult = DialogResult.Cancel };
                     form.Controls.AddRange(new Control[] { lbl, txt, btnOk, btnCancel });
                     form.AcceptButton = btnOk; form.CancelButton = btnCancel;
 
@@ -136,53 +136,53 @@ namespace BetterMeV2VSTO
 
         public string GetCustomUI(string ribbonID)
         {
-            // Added getVisible callback for restyle buttons so they appear only after AI reply used.
+            // Χ”Χ¦Χ’Χª Χ›Χ Χ”ΧΧ—Χ¦Χ Χ™Χ Χ™Χ©Χ™Χ¨Χ•Χª ΧΆΧ Χ”Χ¨Χ™Χ‘Χ•Χ Χ‘Χ§Χ‘Χ•Χ¦Χª 'Χ›ΧΧ™ AI', Χ‘ΧΧ©Χ•Χ Χ™Χª Χ”Χ•Χ“ΧΆΧ” Χ•Χ§Χ¨Χ™ΧΧ” ΧΧ—Χ¨Χ™ Χ‘Χ“Χ•Χ§ Χ Χ’Χ™Χ©Χ•Χª
             return @"<customUI xmlns='http://schemas.microsoft.com/office/2009/07/customui' onLoad='Ribbon_Load'>
   <ribbon>
     <tabs>
       <tab idMso='TabReadMessage'>
-        <group id='BetterMeAI_Read' label='λμι AI'>
-          <button id='BtnSummarize_Read' label='ϊξφεϊ ξιιμ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction' />
-          <button id='BtnSmartReply_Read' label='ϊωεαδ ηλξδ' size='large' imageMso='ReplyAll' onAction='OnMyAction2' />
-          <button id='BtnComposeEmail_Read' label='λϊιαϊ ξιιμ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail' />
-          <button id='BtnRestyle_Read' label='πρη ξηγω' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible' />
-          <button id='BtnUnread_Read_AI' label='ξιιμιν ωμΰ πχψΰε' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7' />
+        <group id='BetterMeAI_Read_All' label='Χ›ΧΧ™ AI' insertAfterMso='GroupProofing'>
+          <button id='BtnSummarize_Read' label='ΧªΧΧ¦Χ•Χª ΧΧ™Χ™Χ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction'/>
+          <button id='BtnSmartReply_Read' label='ΧΧΆΧ Χ” AI' size='large' imageMso='ReplyAll' onAction='OnMyAction2'/>
+          <button id='BtnComposeEmail_Read' label='Χ›ΧªΧ™Χ‘Χª ΧΧ™Χ™Χ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail'/>
+          <button id='BtnRestyle_Read' label='Χ Χ΅Χ— ΧΧ—Χ“Χ©' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible'/>
+          <button id='BtnUnread_Read_AI' label='Χ©ΧΧ Χ Χ§Χ¨ΧΧ•' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7'/>
         </group>
       </tab>
       <tab idMso='TabNewMailMessage'>
-        <group id='BetterMeAI_NewMail' label='λμι AI'>
-          <button id='BtnSummarize_New' label='ϊξφεϊ ξιιμ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction' />
-          <button id='BtnSmartReply_New' label='ξςπδ AI' size='large' imageMso='ReplyAll' onAction='OnMyAction2' />
-          <button id='BtnComposeEmail_New' label='λϊιαϊ ξιιμ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail' />
-          <button id='BtnRestyle_New' label='πρη ξηγω' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible' />
-          <button id='BtnUnread_New_AI' label='ξιιμιν ωμΰ πχψΰε' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7' />
+        <group id='BetterMeAI_New_All' label='Χ›ΧΧ™ AI'>
+          <button id='BtnSummarize_New' label='ΧªΧΧ¦Χ•Χª ΧΧ™Χ™Χ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction'/>
+          <button id='BtnSmartReply_New' label='ΧΧΆΧ Χ” AI' size='large' imageMso='ReplyAll' onAction='OnMyAction2'/>
+          <button id='BtnComposeEmail_New' label='Χ›ΧªΧ™Χ‘Χª ΧΧ™Χ™Χ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail'/>
+          <button id='BtnRestyle_New' label='Χ Χ΅Χ— ΧΧ—Χ“Χ©' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible'/>
+          <button id='BtnUnread_New_AI' label='Χ©ΧΧ Χ Χ§Χ¨ΧΧ•' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7'/>
         </group>
       </tab>
       <tab idMso='TabMessage'>
-        <group id='BetterMeAI_Message' label='λμι AI'>
-          <button id='BtnSummarize_Message' label='ϊξφεϊ ξιιμ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction' />
-          <button id='BtnSmartReply_Message' label='ϊωεαδ ηλξδ' size='large' imageMso='ReplyAll' onAction='OnMyAction2' />
-          <button id='BtnComposeEmail_Message' label='λϊιαϊ ξιιμ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail' />
-          <button id='BtnUnread_Message_AI' label='ξιιμιν ωμΰ πχψΰε' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7' />
-          <button id='BtnRestyle_Message' label='πρη ξηγω' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible' />
+        <group id='BetterMeAI_Message_All' label='Χ›ΧΧ™ AI' insertAfterMso='GroupProofing'>
+          <button id='BtnSummarize_Message' label='ΧªΧΧ¦Χ•Χª ΧΧ™Χ™Χ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction'/>
+          <button id='BtnSmartReply_Message' label='ΧΧΆΧ Χ” AI' size='large' imageMso='ReplyAll' onAction='OnMyAction2'/>
+          <button id='BtnComposeEmail_Message' label='Χ›ΧªΧ™Χ‘Χª ΧΧ™Χ™Χ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail'/>
+          <button id='BtnRestyle_Message' label='Χ Χ΅Χ— ΧΧ—Χ“Χ©' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible'/>
+          <button id='BtnUnread_Message_AI' label='Χ©ΧΧ Χ Χ§Χ¨ΧΧ•' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7'/>
         </group>
       </tab>
       <tab idMso='TabMail'>
-        <group id='BetterMeAI_Mail' label='λμι AI'>
-          <button id='BtnSummarize_Mail' label='ϊξφεϊ ξιιμ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction' />
-          <button id='BtnSmartReply_Mail' label='ξςπδ AI' size='large' imageMso='ReplyAll' onAction='OnMyAction2' />
-          <button id='BtnComposeEmail_Mail' label='λϊιαϊ ξιιμ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail' />
-          <button id='BtnRestyle_Mail' label='πρη ξηγω' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible' />
-          <button id='BtnUnread_Mail_AI' label='ξιιμιν ωμΰ πχψΰε' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7' />
+        <group id='BetterMeAI_Mail_All' label='Χ›ΧΧ™ AI'>
+          <button id='BtnSummarize_Mail' label='ΧªΧΧ¦Χ•Χª ΧΧ™Χ™Χ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction'/>
+          <button id='BtnSmartReply_Mail' label='ΧΧΆΧ Χ” AI' size='large' imageMso='ReplyAll' onAction='OnMyAction2'/>
+          <button id='BtnComposeEmail_Mail' label='Χ›ΧªΧ™Χ‘Χª ΧΧ™Χ™Χ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail'/>
+          <button id='BtnRestyle_Mail' label='Χ Χ΅Χ— ΧΧ—Χ“Χ©' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible'/>
+          <button id='BtnUnread_Mail_AI' label='Χ©ΧΧ Χ Χ§Χ¨ΧΧ•' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7'/>
         </group>
       </tab>
       <tab idMso='TabExplorer'>
-        <group id='BetterMeAI_Explorer' label='BetterMe AI'>
-          <button id='BtnSummarize_Explorer' label='ϊξφεϊ ξιιμ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction' />
-          <button id='BtnSmartReply_Explorer' label='ϊωεαδ ηλξδ' size='large' imageMso='ReplyAll' onAction='OnMyAction2' />
-          <button id='BtnComposeEmail_Explorer' label='λϊιαϊ ξιιμ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail' />
-          <button id='BtnRestyle_Explorer' label='πρη ξηγω' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible' />
-          <button id='BtnUnread_Explorer_AI' label='ξιιμιν ωμΰ πχψΰε' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7' />
+        <group id='BetterMeAI_Explorer_All' label='Χ›ΧΧ™ AI'>
+          <button id='BtnSummarize_Explorer' label='ΧªΧΧ¦Χ•Χª ΧΧ™Χ™Χ' size='large' imageMso='SummarizeSelection' onAction='OnMyAction'/>
+          <button id='BtnSmartReply_Explorer' label='ΧΧΆΧ Χ” AI' size='large' imageMso='ReplyAll' onAction='OnMyAction2'/>
+          <button id='BtnComposeEmail_Explorer' label='Χ›ΧªΧ™Χ‘Χª ΧΧ™Χ™Χ' size='large' imageMso='CreateMailMessage' onAction='OnComposeEmail'/>
+          <button id='BtnRestyle_Explorer' label='Χ Χ΅Χ— ΧΧ—Χ“Χ©' size='large' imageMso='EditMessage' onAction='OnRestyleReply' getVisible='GetRestyleVisible'/>
+          <button id='BtnUnread_Explorer_AI' label='Χ©ΧΧ Χ Χ§Χ¨ΧΧ•' size='large' imageMso='MarkAsUnread' onAction='OnMyAction7'/>
         </group>
       </tab>
     </tabs>
@@ -198,109 +198,148 @@ namespace BetterMeV2VSTO
             ProgressForm dlg = null;
             try
             {
-                var app = Globals.ThisAddIn.Application;
-                var mail = GetCurrentMail(app);
-                if (mail == null) { MessageBox.Show("πΰ μαηεψ ξιιμ μϊξφεϊ", "BetterMeV2VSTO"); return; }
-                var apiKey = GetApiKey();
-                if (string.IsNullOrWhiteSpace(apiKey)) { MessageBox.Show("μΰ πξφΰ ξτϊη API", "BetterMeV2VSTO"); return; }
-
-                dlg = new ProgressForm("ρεψχ ξιιμ... ΰπΰ δξϊο");
-                dlg.Show(); dlg.Refresh();
-
-                var rawBody = !string.IsNullOrEmpty(mail.Body) ? mail.Body : StripHtml(mail.HTMLBody ?? string.Empty);
-                var preprocessed = await Task.Run(() => PreprocessEmailForSummary(rawBody));
-                dlg.UpdateMessage("ξϊξφϊ ϊελο... ΰπΰ δξϊο");
-
-                var subject = mail.Subject ?? string.Empty;
-                string aiSummary;
-                try { aiSummary = await OpenAiSummarizer.SummarizeEmailAsync(subject, preprocessed, apiKey); }
-                catch (Exception ex) { MessageBox.Show("ωβιΰδ αριλεν: " + ex.Message, "BetterMeV2VSTO"); return; }
-
-                // Convert plain summary (possibly with * bullets) to clean HTML without asterisks
-                var summaryInnerHtml = BuildSummaryInnerHtml(aiSummary);
-
-                var htmlBody = mail.HTMLBody;
-                if (string.IsNullOrEmpty(htmlBody))
-                    htmlBody = "<html><body>" + HtmlEncode(rawBody ?? string.Empty).Replace("\n", "<br/>") + "</body></html>";
-                if (!htmlBody.Contains("data-bme-summary=\"1\""))
+                var globals = Globals.ThisAddIn;
+                if (globals == null || globals.Application == null)
                 {
-                    var panel = "<div data-bme-summary=\"1\" style=\"border:1px solid #ddd;padding:10px;margin:10px 0;background:#fffbe6;direction:rtl;text-align:right;font-family:Segoe UI,Arial,sans-serif;\">"+
-                                "<div style=\"font-weight:bold;margin-bottom:6px;\">ϊξφεν δξιιμ αςζψϊ AI</div>"+
-                                summaryInnerHtml +
-                                "</div>";
-                    mail.HTMLBody = InsertSummaryIntoHtml(htmlBody, panel);
+                    return; // No popup
+                }
+                Outlook.Application app = null;
+                try { app = globals.Application; } catch { }
+                if (app == null)
+                {
+                    return; // No popup
                 }
 
-                // Ask user if they want to generate an AI reply now
+                Outlook.MailItem mail = null;
+                try { mail = GetCurrentMail(app); } catch { }
+                if (mail == null)
+                {
+                    return; // No popup
+                }
+
+                // Χ‘Χ“Χ™Χ§Χ” ΧΧ Χ›Χ‘Χ¨ Χ§Χ™Χ™Χ Χ¤ΧΧ Χ ΧªΧΧ¦Χ•Χª
+                string htmlBodyCheck = null;
+                try { htmlBodyCheck = mail.HTMLBody; } catch { }
+                if (!string.IsNullOrEmpty(htmlBodyCheck) && htmlBodyCheck.Contains("data-bme-summary=\"1\""))
+                {
+                    MessageBox.Show("ΧΧ™Χ™Χ Χ–Χ” ΧªΧ•ΧΧ¦Χ.", "BetterMeV2VSTO");
+                    return;
+                }
+
+                string apiKey = GetApiKey();
+                if (string.IsNullOrWhiteSpace(apiKey)) return;
+
+                dlg = new ProgressForm("Χ΅Χ•Χ¨Χ§ ΧΧ™Χ™Χ... ΧΧ Χ Χ”ΧΧªΧ");
+                try { dlg.Show(); dlg.Refresh(); } catch { }
+
+                string rawBody = string.Empty;
+                try { rawBody = !string.IsNullOrEmpty(mail.Body) ? mail.Body : StripHtml(mail.HTMLBody ?? string.Empty); } catch { }
+                if (string.IsNullOrWhiteSpace(rawBody)) { try { dlg?.Close(); } catch { } return; }
+
+                string preprocessed = rawBody;
+                try { preprocessed = await Task.Run(() => PreprocessEmailForSummary(rawBody)); } catch { }
+
+                try { dlg?.UpdateMessage("ΧΧªΧΧ¦Χª ΧªΧ•Χ›Χ... ΧΧ Χ Χ”ΧΧªΧ"); } catch { }
+
+                string subject = string.Empty;
+                try { subject = mail.Subject ?? string.Empty; } catch { }
+
+                string aiSummary;
+                try { aiSummary = await OpenAiSummarizer.SummarizeEmailAsync(subject, preprocessed ?? string.Empty, apiKey); }
+                catch { try { dlg?.Close(); } catch { } return; }
+
+                var summaryInnerHtml = BuildSummaryInnerHtml(aiSummary ?? string.Empty);
+
+                string htmlBody = null;
+                try { htmlBody = mail.HTMLBody; } catch { }
+                if (string.IsNullOrEmpty(htmlBody))
+                {
+                    htmlBody = "<html><body>" + HtmlEncode(rawBody ?? string.Empty).Replace("\n", "<br/>") + "</body></html>";
+                }
+
                 try
                 {
-                    var resp = MessageBox.Show("δΰν αψφεπκ μςπεϊ μξιιμ ζδ αΰξφςεϊ AI ?", "ξςπδ AI", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.RightAlign | MessageBoxOptions.RtlReading);
-                    if (resp == DialogResult.Yes)
+                    if (!htmlBody.Contains("data-bme-summary=\"1\""))
                     {
-                        OnMyAction2(null); // trigger smart reply
+                        var panel = "<div data-bme-summary=\"1\" style=\"border:1px solid #ddd;padding:10px;margin:10px 0;background:#fffbe6;direction:rtl;text-align:right;font-family:Segoe UI,Arial,sans-serif;max-width:100%;word-wrap:break-word;word-break:break-word;white-space:normal;\">" +
+                                    "<div style=\"font-weight:bold;margin-bottom:6px;\">ΧªΧΧ¦Χ•Χ¨ ΧΧ™Χ™Χ Χ‘ΧΆΧ–Χ¨Χª AI</div>" +
+                                    "<div style=\"overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;line-height:1.4;\">" +
+                                    summaryInnerHtml +
+                                    "</div></div>";
+                        mail.HTMLBody = InsertSummaryIntoHtml(htmlBody, panel);
                     }
                 }
                 catch { }
             }
-            catch (Exception ex) { MessageBox.Show("Error: " + ex.Message, "BetterMeV2VSTO"); }
-            finally { try { dlg?.Close(); } catch { } }
+            finally
+            {
+                try { dlg?.Close(); } catch { }
+            }
         }
 
         private static string BuildSummaryInnerHtml(string summary)
         {
-            if (string.IsNullOrWhiteSpace(summary)) return string.Empty;
-            // Remove repeated asterisks anywhere (markdown style emphasis)** and lone * markers
-            summary = summary.Replace("**", "");
-            summary = Regex.Replace(summary, "\\*{1,}", "*"); // collapse multi * to single for easier parsing
-
-            var lines = summary.Replace('\r', '\n').Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            var bulletLines = new List<string>();
-            var normalSb = new StringBuilder();
-            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var raw in lines)
+            if (string.IsNullOrWhiteSpace(summary)) return string.Empty; // guard null/empty
+            try
             {
-                var line = raw.Trim();
-                if (string.IsNullOrEmpty(line)) continue;
-                // Strip leading bullet symbols and asterisks
-                line = Regex.Replace(line, @"^([*•\-\u2022]+)\s*", "");
-                // Remove trailing duplicate punctuation / stray backslashes
-                line = Regex.Replace(line, @"\\+(?=[\.!?]?$)", ""); // remove trailing backslashes before end
-                line = Regex.Replace(line, @"[;:,]+(?=[\.!?]?$)", ""); // drop semicolon/colon/comma right before final punctuation or end
-                line = line.Trim();
-                // If ends with semicolon only – convert to period
-                if (Regex.IsMatch(line, @"[;:,]$")) line = line.Substring(0, line.Length - 1);
-                // Ensure period at end of non-empty line (for bullets we will add if missing)
-                if (!string.IsNullOrEmpty(line) && !Regex.IsMatch(line, @"[\.\?!]$")) line += ".";
+                // Remove repeated asterisks anywhere (markdown style emphasis)** and lone * markers
+                summary = summary.Replace("**", "");
+                summary = Regex.Replace(summary, "\\*{1,}", "*"); // collapse multi * to single for easier parsing
 
-                // Normalize key for dedup detection (strip punctuation & spaces)
-                var key = Regex.Replace(line, @"[\s\p{P}]+", "").ToLowerInvariant();
-                if (key.Length == 0 || seen.Contains(key)) continue;
-                seen.Add(key);
+                var lines = summary.Replace('\r', '\n').Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                var bulletLines = new List<string>();
+                var normalSb = new StringBuilder();
+                var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                if (Regex.IsMatch(raw.TrimStart(), @"^([*•\-\u2022])\s+"))
+                foreach (var raw in lines)
                 {
-                    bulletLines.Add(HtmlEncode(line));
+                    var line = raw?.Trim();
+                    if (string.IsNullOrEmpty(line)) continue;
+                    // Strip leading bullet symbols and asterisks
+                    line = Regex.Replace(line, @"^([*β€Ά\-\u2022]+)\s*", "");
+                    // Remove trailing duplicate punctuation / stray backslashes
+                    line = Regex.Replace(line, @"\\+(?=[\.!?]?$)", "");
+                    line = Regex.Replace(line, @"[;:,]+(?=[\.!?]?$)", "");
+                    line = line.Trim();
+                    if (line.Length == 0) continue;
+                    if (Regex.IsMatch(line, @"[;:,]$")) line = line.Substring(0, line.Length - 1);
+                    if (!Regex.IsMatch(line, @"[\.!?]$")) line += ".";
+
+                    var key = Regex.Replace(line, @"[\s\p{P}]+", "").ToLowerInvariant();
+                    if (key.Length == 0 || seen.Contains(key)) continue;
+                    seen.Add(key);
+
+                    if (Regex.IsMatch(raw.TrimStart(), @"^([*β€Ά\-\u2022])\s+"))
+                        bulletLines.Add(HtmlEncode(line));
+                    else
+                        normalSb.Append(HtmlEncode(line)).Append("<br/>");
                 }
-                else
+
+                var sb = new StringBuilder();
+                if (normalSb.Length > 0)
+                    sb.Append("<div style='margin-bottom:6px;overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;line-height:1.4;'>").Append(normalSb.ToString()).Append("</div>");
+                if (bulletLines.Count > 0)
                 {
-                    normalSb.Append(HtmlEncode(line)).Append("<br/>");
+                    sb.Append("<ul style='margin:0 0 0 16px;padding:0;list-style:disc'>");
+                    foreach (var b in bulletLines)
+                        sb.Append("<li style='margin-bottom:4px;overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;line-height:1.4;'>").Append(b).Append("</li>");
+                    sb.Append("</ul>");
                 }
+                if (sb.Length == 0) 
+                {
+                    sb.Append("<div style='overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;line-height:1.4;'>")
+                      .Append(HtmlEncode(summary))
+                      .Append("</div>");
+                }
+                return sb.ToString();
             }
-
-            var sb = new StringBuilder();
-            if (normalSb.Length > 0)
-                sb.Append("<div style='margin-bottom:6px;'>").Append(normalSb.ToString()).Append("</div>");
-
-            if (bulletLines.Count > 0)
+            catch
             {
-                sb.Append("<ul style='margin:0 0 0 16px;padding:0;list-style:disc;'>");
-                foreach (var b in bulletLines)
-                    sb.Append("<li style='margin-bottom:4px;'>").Append(b).Append("</li>");
-                sb.Append("</ul>");
+                // Fallback: return raw summary encoded to avoid breaking caller
+                return "<div style='overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;line-height:1.4;'>" + 
+                       HtmlEncode(summary ?? string.Empty) + 
+                       "</div>";
             }
-            if (sb.Length == 0) sb.Append(HtmlEncode(summary));
-            return sb.ToString();
         }
 
         // Smart Reply
@@ -311,14 +350,15 @@ namespace BetterMeV2VSTO
             {
                 var app = Globals.ThisAddIn.Application;
                 var mail = GetCurrentMail(app);
-                if (mail == null) { MessageBox.Show("ΰπΰ αηψ δεγςϊ ξιιμ", "BetterMeV2VSTO"); return; }
+                if (mail == null) { MessageBox.Show("ΧΧ Χ Χ‘Χ—Χ¨ Χ”Χ•Χ“ΧΧª ΧΧ™Χ™Χ", "BetterMeV2VSTO"); return; }
+
                 var plain = !string.IsNullOrEmpty(mail.Body) ? mail.Body : StripHtml(mail.HTMLBody ?? string.Empty);
                 var apiKey = GetApiKey();
-                if (string.IsNullOrWhiteSpace(apiKey)) { MessageBox.Show("μΰ πξφΰ ξτϊη API", "BetterMeV2VSTO"); return; }
-                dlg = new ProgressForm("ξιιφψ ϊωεαδ ηλξδ... ΰπΰ δξϊο"); dlg.Show(); dlg.Refresh();
+                if (string.IsNullOrWhiteSpace(apiKey)) { MessageBox.Show("ΧΧ Χ ΧΧ¦Χ ΧΧ¤ΧªΧ— API", "BetterMeV2VSTO"); return; }
+                dlg = new ProgressForm("Χ™Χ•Χ¦Χ¨ ΧªΧ©Χ•Χ‘Χ” Χ—Χ›ΧΧ”... ΧΧ Χ Χ”ΧΧªΧ"); dlg.Show(); dlg.Refresh();
                 string aiReply;
                 try { aiReply = await OpenAiSummarizer.ComposeReplyAsync(mail.Subject ?? string.Empty, plain, apiKey); }
-                catch (Exception ex) { MessageBox.Show("ωβιΰδ αιφιψϊ ϊωεαδ: " + ex.Message, "BetterMeV2VSTO"); return; }
+                catch (Exception ex) { MessageBox.Show("Χ©Χ’Χ™ΧΧ” Χ‘Χ™Χ¦Χ™Χ¨Χª ΧªΧ©Χ•Χ‘Χ”: " + ex.Message, "BetterMeV2VSTO"); return; }
                 finally { try { dlg?.Close(); } catch { } }
 
                 var userName = GetUserDisplayName(app);
@@ -326,11 +366,14 @@ namespace BetterMeV2VSTO
 
                 var reply = mail.Reply();
                 var originalBody = reply.HTMLBody ?? string.Empty;
-                if (!originalBody.Contains("data-bme-aireply='1'") && !originalBody.Contains("data-bme-aireply=\"1\""))
+                // Χ‘Χ“Χ•Χ§ ΧΧ Χ›Χ‘Χ¨ Χ™Χ© ΧªΧ’Χ™Χª data-bme-aireply Χ‘ΧªΧ’Χ•Χ‘Χ” Χ”Χ—Χ“Χ©Χ” (Χ•ΧΧ Χ‘ΧΧ™Χ™Χ Χ”ΧΧ§Χ•Χ¨Χ™)
+                if (originalBody.Contains("data-bme-aireply='1'") || originalBody.Contains("data-bme-aireply=\"1\""))
                 {
-                    var aiHtml = "<div data-bme-aireply='1' style='direction:rtl;text-align:right;white-space:pre-wrap;font-family:Segoe UI,Arial,sans-serif;'>" + HtmlEncode(aiReply) + "</div><br/>";
-                    reply.HTMLBody = aiHtml + originalBody;
+                    MessageBox.Show("ΧΧ Χ Χ™ΧªΧ ΧΧ”Χ©ΧªΧΧ© Χ‘ΧΧΆΧ Χ” AI Χ™Χ•ΧªΧ¨ ΧΧ¤ΧΆΧ ΧΧ—Χª ΧΆΧ ΧΧ•ΧªΧ• ΧΧ™Χ™Χ.", "BetterMeV2VSTO");
+                    return;
                 }
+                var aiHtml = "<div data-bme-aireply='1' style='direction:rtl;text-align:right;white-space:pre-wrap;font-family:Segoe UI,Arial,sans-serif;'>" + HtmlEncode(aiReply) + "</div><br/>";
+                reply.HTMLBody = aiHtml + originalBody;
                 reply.Display(true);
 
                 // Enable restyle and show task pane with options
@@ -338,7 +381,7 @@ namespace BetterMeV2VSTO
                 _ribbon?.Invalidate();
                 try
                 {
-                    Globals.ThisAddIn.ShowRestylePane(reply.GetInspector); // property, not method
+                    Globals.ThisAddIn.ShowRestylePane(reply.GetInspector);
                 }
                 catch { }
             }
@@ -356,13 +399,13 @@ namespace BetterMeV2VSTO
                 if (newMail != null)
                 {
                     // Set default placeholder text
-                    newMail.Body = "λϊεα λΰο ξδ αψφεπκ μλϊεα.";
+                    newMail.Body = "Χ›ΧªΧ•Χ‘ Χ›ΧΧ ΧΧ” Χ‘Χ¨Χ¦Χ•Χ Χ ΧΧ›ΧªΧ•Χ‘.";
                     newMail.Display(true);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("ωβιΰδ ατϊιηϊ ξιιμ ηγω: " + ex.Message, "BetterMeV2VSTO");
+                MessageBox.Show("Χ©Χ’Χ™ΧΧ” Χ‘Χ¤ΧªΧ™Χ—Χª ΧΧ™Χ™Χ Χ—Χ“Χ©: " + ex.Message, "BetterMeV2VSTO");
             }
         }
 
@@ -376,7 +419,7 @@ namespace BetterMeV2VSTO
         {
             using (var form = new Form())
             {
-                form.Text = "αηψ ρβπεο ςιαεγ";
+                form.Text = "Χ‘Χ—Χ¨ Χ΅Χ’Χ Χ•Χ ΧΆΧ™Χ‘Χ•Χ“";
                 form.Width = 350;
                 form.Height = 200;
                 form.StartPosition = FormStartPosition.CenterScreen;
@@ -386,7 +429,7 @@ namespace BetterMeV2VSTO
 
                 var label = new Label
                 {
-                    Text = "αηψ ΰϊ ρβπεο δςιαεγ δψφει:",
+                    Text = "Χ‘Χ—Χ¨ ΧΧª Χ΅Χ’Χ Χ•Χ Χ”ΧΆΧ™Χ‘Χ•Χ“ Χ”Χ¨Χ¦Χ•Χ™:",
                     Left = 20,
                     Top = 20,
                     Width = 300
@@ -399,17 +442,17 @@ namespace BetterMeV2VSTO
                     Width = 280,
                     DropDownStyle = ComboBoxStyle.DropDownList
                 };
-                // Removed custom option per request
                 comboBox.Items.AddRange(new object[] {
-                    "ξχφεςι (Professional)",
-                    "χφψ ιεϊψ (Concise)",
-                    "ΰψεκ ιεϊψ (Expanded)"
+                    "ΧΧ§Χ¦Χ•ΧΆΧ™ (Professional)",
+                    "Χ§Χ¦Χ¨ Χ™Χ•ΧªΧ¨ (Concise)",
+                    "ΧΧ¨Χ•Χ Χ™Χ•ΧªΧ¨ (Expanded)",
+                    "ΧΧΧ Χ—Χ•Χ¤Χ©Χ™ (Custom)" // Χ—Χ“Χ©
                 });
                 comboBox.SelectedIndex = 0;
 
                 var btnOK = new Button
                 {
-                    Text = "ΰιωεψ",
+                    Text = "ΧΧ™Χ©Χ•Χ¨",
                     Left = 150,
                     Top = 100,
                     Width = 80,
@@ -418,7 +461,7 @@ namespace BetterMeV2VSTO
 
                 var btnCancel = new Button
                 {
-                    Text = "αιθεμ",
+                    Text = "Χ‘Χ™ΧΧ•Χ",
                     Left = 240,
                     Top = 100,
                     Width = 80,
@@ -436,6 +479,26 @@ namespace BetterMeV2VSTO
                         case 0: return "professional";
                         case 1: return "concise";
                         case 2: return "expanded";
+                        case 3:
+                            // ΧªΧ™Χ‘Χª Χ§ΧΧ ΧΧΧΧ Χ—Χ•Χ¤Χ©Χ™
+                            using (var inputForm = new Form())
+                            {
+                                inputForm.Text = "Χ”Χ–Χ Χ‘Χ§Χ©Χ” Χ—Χ•Χ¤Χ©Χ™Χª";
+                                inputForm.Width = 400;
+                                inputForm.Height = 200;
+                                var lbl = new Label { Text = "Χ”Χ–Χ ΧΧª Χ”Χ‘Χ§Χ©Χ” ΧΧ• Χ”Χ Χ•Χ©Χ Χ”Χ—Χ•Χ¤Χ©Χ™:", Left = 10, Top = 20, Width = 360 };
+                                var txt = new TextBox { Left = 10, Top = 50, Width = 360, Height = 60, Multiline = true };
+                                var btnInputOK = new Button { Text = "ΧΧ™Χ©Χ•Χ¨", Left = 220, Width = 70, Top = 120, DialogResult = DialogResult.OK };
+                                var btnInputCancel = new Button { Text = "Χ‘Χ™ΧΧ•Χ", Left = 300, Width = 70, Top = 120, DialogResult = DialogResult.Cancel };
+                                inputForm.Controls.AddRange(new Control[] { lbl, txt, btnInputOK, btnInputCancel });
+                                inputForm.AcceptButton = btnInputOK;
+                                inputForm.CancelButton = btnInputCancel;
+                                if (inputForm.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(txt.Text))
+                                {
+                                    return "custom:" + txt.Text.Trim();
+                                }
+                            }
+                            break;
                         default: return null;
                     }
                 }
@@ -453,7 +516,7 @@ namespace BetterMeV2VSTO
                 var view = explorer.CurrentView as Outlook.TableView;
                 if (view == null)
                 {
-                    MessageBox.Show("μΰ πιϊο μρπο – δϊφεβδ δπεληιϊ ΰιπδ TableView", "BetterMeV2VSTO");
+                    MessageBox.Show("ΧΧ Χ Χ™ΧªΧ ΧΧ΅Χ Χ β€“ Χ”ΧªΧ¦Χ•Χ’Χ” Χ”Χ Χ•Χ›Χ—Χ™Χª ΧΧ™Χ Χ” TableView", "BetterMeV2VSTO");
                     return;
                 }
                 if (!string.IsNullOrEmpty(view.Filter) && view.Filter.Trim().Equals("[Unread] = true", StringComparison.OrdinalIgnoreCase))
@@ -464,7 +527,7 @@ namespace BetterMeV2VSTO
             }
             catch (Exception ex)
             {
-                MessageBox.Show("ωβιΰδ αριπεο ωμΰ πχψΰε: " + ex.Message, "BetterMeV2VSTO");
+                MessageBox.Show("Χ©Χ’Χ™ΧΧ” Χ‘Χ΅Χ™Χ Χ•Χ Χ©ΧΧ Χ Χ§Χ¨ΧΧ•: " + ex.Message, "BetterMeV2VSTO");
             }
         }
 
@@ -473,7 +536,8 @@ namespace BetterMeV2VSTO
         public void OnMyAction4(Office.IRibbonControl control) { /* removed feature */ }
         public void OnScheduleMeeting(Office.IRibbonControl control) { /* removed feature */ }
 
-        private static string PreprocessEmailForSummary(string body)
+        private static string PreprocessEmailForSummary(string body
+        )
         {
             if (string.IsNullOrWhiteSpace(body)) return string.Empty;
             var lines = body.Replace('\r', '\n').Split(new[] {'\n'}, StringSplitOptions.None);
@@ -493,7 +557,7 @@ namespace BetterMeV2VSTO
 
                 // Skip long legal / disclaimer style lines
                 if (line.Length > 220 && (line.IndexOf("DISCLAIMER", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                          line.IndexOf("ρεγιεϊ", StringComparison.OrdinalIgnoreCase) >= 0)) continue;
+                                          line.IndexOf("Χ΅Χ•Χ“Χ™Χ•Χª", StringComparison.OrdinalIgnoreCase) >= 0)) continue;
 
                 // Collapse noisy signature indicators
                 if (line.StartsWith("--") || line.StartsWith("__")) break; // stop at signature
@@ -616,11 +680,11 @@ namespace BetterMeV2VSTO
                             var mapKey = cleaned.Replace(" ", "").ToLowerInvariant();
                             var hebrewMap = new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
                             {
-                                {"asaf","ΰρσ"}, {"asaf","ΰρσ"}, {"yossi","ιερι"}, {"yosi","ιερι"},
-                                {"yaakov","ιςχα"}, {"moshe","ξωδ"}, {"david","γεγ"}, {"dan","γο"},
-                                {"daniel","γπιΰμ"}, {"noam","πεςν"}, {"lior","μιΰεψ"}, {"oren","ΰεψο"},
-                                {"itay","ΰιϊι"}, {"itai","ΰιϊι"}, {"shai","ωι"}, {"shay","ωι"},
-                                {"avi","ΰαι"}, {"amir","ΰξιψ"}, {"tal","θμ"}, {"yuval","ιεαμ"}
+                                {"asaf","ΧΧ΅Χ£"}, {"asaf","ΧΧ΅Χ£"}, {"yossi","Χ™Χ•Χ΅Χ™"}, {"yosi","Χ™Χ•Χ΅Χ™"},
+                                {"yaakov","Χ™ΧΆΧ§Χ‘"}, {"moshe","ΧΧ©Χ”"}, {"david","Χ“Χ•Χ“"}, {"dan","Χ¨Χ"},
+                                {"daniel","Χ“Χ Χ™ΧΧ"}, {"noam","Χ Χ•ΧΆΧ"}, {"lior","ΧΧ™ΧΧ•Χ¨"}, {"oren","ΧΧ•Χ¨Χ"},
+                                {"itay","ΧΧ™ΧªΧ™"}, {"itai","ΧΧ™ΧªΧ™"}, {"shai","Χ©Χ™"}, {"shay","Χ©Χ™"},
+                                {"avi","ΧΧ‘Χ™"}, {"amir","ΧΧΧ™Χ¨"}, {"tal","ΧΧ"}, {"yuval","Χ™Χ•Χ‘Χ"}
                             };
                             if (hebrewMap.TryGetValue(mapKey, out var hebName))
                                 display = hebName;
@@ -639,68 +703,55 @@ namespace BetterMeV2VSTO
                 if (!string.IsNullOrWhiteSpace(display)) return display.Trim();
             }
             catch { }
-            return "[ων ξμΰ]"; // fallback
+            return "[Χ©Χ ΧΧΧ]"; // fallback
         }
 
-        // Updated EnsureSignature to remove placeholder blocks and avoid placeholder tokens
+        // Updated EnsureSignature to keep ONLY a single 'Χ‘Χ‘Χ¨Χ›Χ”' line (without name / placeholders) if a signature exists.
         private static string EnsureSignature(string reply, string userName)
         {
             if (string.IsNullOrWhiteSpace(reply)) return reply;
-            userName = string.IsNullOrWhiteSpace(userName) ? "[ων ξμΰ]" : userName.Trim();
-            var text = reply.TrimEnd();
-            text = text.Replace("\r\n", "\n").Replace('\r', '\n');
+            var text = reply.Replace("\r\n", "\n").Replace('\r', '\n');
 
-            // Remove full placeholder block starting with -- and followed by known placeholder lines
-            text = Regex.Replace(text, @"(?:\n|^)--\nααψλδ,?\n\[(?:δλπρ\s)?ων ξμΰ\]\n\[ϊτχιγ\]\n\[θμτεο / γεΰ""?μ\]\s*", "\n", RegexOptions.Multiline);
+            // Remove common placeholder blocks / tokens
+            text = Regex.Replace(text, @"(?:\n|^)--\nΧ‘Χ‘Χ¨Χ›Χ”,?\n\[(?:Χ”Χ›Χ Χ΅\s)?Χ©Χ ΧΧΧΧ”?\]\n\[ΧªΧ¤Χ§Χ™Χ“\]\n\[ΧΧΧ¤Χ•Χ / Χ“Χ•Χ""?Χ\]", "", RegexOptions.Multiline);
+            text = Regex.Replace(text, @"\[(?:Χ”Χ›Χ Χ΅\s)?Χ©Χ ΧΧΧΧ”?\]", string.Empty);
+            text = Regex.Replace(text, @"\[ΧªΧ¤Χ§Χ™Χ“\]", string.Empty);
+            text = Regex.Replace(text, @"\[ΧΧΧ¤Χ•Χ / Χ“Χ•Χ""?Χ\]", string.Empty);
 
-            // Remove any leftover individual placeholder lines
-            text = Regex.Replace(text, @"^\[(?:δλπρ\s)?ων ξμΰ\]\.?$", string.Empty, RegexOptions.Multiline);
-            text = Regex.Replace(text, @"^\[ϊτχιγ\]$", string.Empty, RegexOptions.Multiline);
-            text = Regex.Replace(text, @"^\[θμτεο / γεΰ""?μ\]$", string.Empty, RegexOptions.Multiline);
-
-            // Collapse multiple blank lines created by removals
-            text = Regex.Replace(text, "\n{3,}", "\n\n").TrimEnd();
-
-            // Signature normalization
             var lines = new List<string>(text.Split('\n'));
-            bool foundSignature = false;
+            // Normalize whitespace lines
+            for (int i = 0; i < lines.Count; i++) lines[i] = lines[i].TrimEnd();
+
+            // Find any line that is a signature start (variants of 'Χ‘Χ‘Χ¨Χ›Χ”')
+            int sigIndex = -1;
             for (int i = 0; i < lines.Count; i++)
             {
-                var line = lines[i].Trim();
-                if (!foundSignature && Regex.IsMatch(line, @"^ααψλδ[,]?$"))
-                {
-                    foundSignature = true;
-                    // Remove any following empty / placeholder lines
-                    int j = i + 1;
-                    while (j < lines.Count && string.IsNullOrWhiteSpace(lines[j]))
-                        lines.RemoveAt(j);
-                    // If next line is placeholder remove it
-                    if (j < lines.Count && Regex.IsMatch(lines[j].Trim(), @"^\[(?:δλπρ\s)?ων ξμΰ\]"))
-                        lines.RemoveAt(j);
-                    // Ensure user name present if we have a real one (not placeholder)
-                    if (userName != "[ων ξμΰ]")
-                    {
-                        if (j >= lines.Count || !lines[j].Trim().Equals(userName, StringComparison.Ordinal))
-                            lines.Insert(j, userName);
-                    }
-                }
-            }
-            if (!foundSignature)
-            {
-                // Append new minimal signature
-                if (userName == "[ων ξμΰ]")
-                    text = text + "\n\nααψλδ"; // no name if unknown
-                else
-                    text = text + "\n\nααψλδ\n" + userName;
-            }
-            else
-            {
-                text = string.Join("\n", lines).TrimEnd();
+                var l = lines[i].Trim();
+                if (Regex.IsMatch(l, @"^Χ‘Χ‘Χ¨Χ›Χ”[,]?$")) { sigIndex = i; break; }
             }
 
-            // Final cleanup: remove trailing spaces and duplicate blank lines
-            text = Regex.Replace(text, "\n{3,}", "\n\n").TrimEnd();
-            return text;
+            if (sigIndex >= 0)
+            {
+                // Keep content up to (but excluding) existing signature line's trailing blanks
+                var kept = new List<string>();
+                for (int i = 0; i < sigIndex; i++)
+                {
+                    var trimmed = lines[i].TrimEnd();
+                    // Skip empty lines at end just before signature
+                    if (i == sigIndex - 1 && string.IsNullOrWhiteSpace(trimmed)) continue;
+                    kept.Add(trimmed);
+                }
+                // Add single 'Χ‘Χ‘Χ¨Χ›Χ”'
+                if (kept.Count > 0 && !string.IsNullOrWhiteSpace(kept[kept.Count - 1]))
+                    kept.Add("" ); // blank separator only if last line has content
+                kept.Add("Χ‘Χ‘Χ¨Χ›Χ”");
+                lines = kept;
+            }
+            // Else: no signature line present -> leave original content (without placeholders) untouched.
+
+            var cleaned = string.Join("\n", lines);
+            cleaned = Regex.Replace(cleaned, "\n{3,}", "\n\n").TrimEnd();
+            return cleaned.Trim();
         }
 
         // Helper to clean placeholder signature patterns in arbitrary text (used for restyle)
@@ -708,10 +759,10 @@ namespace BetterMeV2VSTO
         {
             if (string.IsNullOrEmpty(text)) return text;
             text = text.Replace("\r\n", "\n").Replace('\r', '\n');
-            text = Regex.Replace(text, @"(?:\n|^)--\nααψλδ,?\n\[(?:δλπρ\s)?ων ξμΰ\]\n\[ϊτχιγ\]\n\[θμτεο / γεΰ""?μ\]\s*", "\n", RegexOptions.Multiline);
-            text = Regex.Replace(text, @"^\[(?:δλπρ\s)?ων ξμΰ\]\.?$", string.Empty, RegexOptions.Multiline);
-            text = Regex.Replace(text, @"^\[ϊτχιγ\]$", string.Empty, RegexOptions.Multiline);
-            text = Regex.Replace(text, @"^\[θμτεο / γεΰ""?μ\]$", string.Empty, RegexOptions.Multiline);
+            text = Regex.Replace(text, @"(?:\n|^)--\nΧ‘Χ‘Χ¨Χ›Χ”,?\n\[(?:Χ”Χ›Χ Χ΅\s)?Χ©Χ ΧΧΧΧ”?\]\n\[ΧªΧ¤Χ§Χ™Χ“\]\n\[ΧΧΧ¤Χ•Χ / Χ“Χ•Χ""?Χ\]", "\n", RegexOptions.Multiline);
+            text = Regex.Replace(text, @"^\[(?:Χ”Χ›Χ Χ΅\s)?Χ©Χ ΧΧΧΧ”?\]\.?$", string.Empty, RegexOptions.Multiline);
+            text = Regex.Replace(text, @"^\[ΧªΧ¤Χ§Χ™Χ“\]$", string.Empty, RegexOptions.Multiline);
+            text = Regex.Replace(text, @"^\[ΧΧΧ¤Χ•Χ / Χ“Χ•Χ""?Χ\]$", string.Empty, RegexOptions.Multiline);
             text = Regex.Replace(text, "\n{3,}", "\n\n").TrimEnd();
             return text;
         }
@@ -726,24 +777,92 @@ namespace BetterMeV2VSTO
                 if (inspector?.CurrentItem is Outlook.MailItem currentMail)
                 {
                     var currentBody = !string.IsNullOrEmpty(currentMail.Body) ? currentMail.Body : StripHtml(currentMail.HTMLBody ?? string.Empty);
-                    if (string.IsNullOrWhiteSpace(currentBody)) { MessageBox.Show("ΰιο ϊελο μςιαεγ.", "BetterMeV2VSTO"); return; }
-                    var apiKey = GetApiKey(); if (string.IsNullOrWhiteSpace(apiKey)) { MessageBox.Show("μΰ πξφΰ ξτϊη API", "BetterMeV2VSTO"); return; }
-                    ProgressForm dlg = new ProgressForm("ξπρη ξηγω... ΰπΰ δξϊο"); dlg.Show(); dlg.Refresh();
+                    if (string.IsNullOrWhiteSpace(currentBody)) { MessageBox.Show("ΧΧ™Χ ΧªΧ•Χ›Χ ΧΧΆΧ™Χ‘Χ•Χ“.", "BetterMeV2VSTO"); return; }
+                    var apiKey = GetApiKey(); if (string.IsNullOrWhiteSpace(apiKey)) { MessageBox.Show("ΧΧ Χ ΧΧ¦Χ ΧΧ¤ΧªΧ— API", "BetterMeV2VSTO"); return; }
+                    ProgressForm dlg = new ProgressForm("ΧΧ Χ΅Χ— ΧΧ—Χ“Χ©... ΧΧ Χ Χ”ΧΧªΧ"); dlg.Show(); dlg.Refresh();
                     string restyled;
-                    try { restyled = await OpenAiSummarizer.ComposeNewEmailAsync(currentBody, apiKey, style ?? "professional"); }
-                    catch (Exception ex) { MessageBox.Show("ωβιΰδ αςιαεγ: " + ex.Message, "BetterMeV2VSTO"); return; }
+                    try {
+                        if (style.StartsWith("custom:"))
+                        {
+                            // ΧΧ—Χ™Χ§Χª Χ’Χ•Χ£ Χ”ΧΧ™Χ™Χ ΧΧ¤Χ Χ™ Χ”Χ›Χ Χ΅Χª ΧªΧ©Χ•Χ‘Χ” Χ—Χ“Χ©Χ”
+                            currentMail.Body = string.Empty;
+                            currentMail.HTMLBody = string.Empty;
+                            var customPrompt = style.Substring("custom:".Length);
+                            restyled = await OpenAiSummarizer.ComposeNewEmailAsync(customPrompt, apiKey, "custom");
+                        }
+                        else
+                        {
+                            restyled = await OpenAiSummarizer.ComposeNewEmailAsync(currentBody, apiKey, style ?? "professional");
+                        }
+                    } catch (Exception ex) { MessageBox.Show("Χ©Χ’Χ™ΧΧ” Χ‘ΧΆΧ™Χ‘Χ•Χ“: " + ex.Message, "BetterMeV2VSTO"); return; }
                     finally { try { dlg?.Close(); } catch { } }
                     var userName = GetUserDisplayName(app);
                     restyled = EnsureSignature(restyled, userName);
                     currentMail.HTMLBody = "<div style='direction:rtl;text-align:right;white-space:pre-wrap;font-family:Segoe UI,Arial,sans-serif;'>" + HtmlEncode(restyled) + "</div>";
                 }
             }
-            catch (Exception ex) { MessageBox.Show("ωβιΰδ: " + ex.Message, "BetterMeV2VSTO"); }
+            catch (Exception ex) { MessageBox.Show("Χ©Χ’Χ™ΧΧ”: " + ex.Message, "BetterMeV2VSTO"); }
         }
 
         public void QueueRestyle(string style)
         {
             var _ = RestyleWithStyle(style); // fire and forget
+        }
+
+        public async void OnRestyleReply(Office.IRibbonControl control)
+        {
+            try
+            {
+                var app = Globals.ThisAddIn.Application;
+                var inspector = app.ActiveInspector();
+                if (inspector?.CurrentItem is Outlook.MailItem currentMail)
+                {
+                    var currentBody = !string.IsNullOrEmpty(currentMail.Body) ? currentMail.Body : StripHtml(currentMail.HTMLBody ?? string.Empty);
+                    if (string.IsNullOrWhiteSpace(currentBody)) { MessageBox.Show("ΧΧ™Χ ΧªΧ•Χ›Χ ΧΧΆΧ™Χ‘Χ•Χ“.", "BetterMeV2VSTO"); return; }
+
+                    var style = ShowStyleSelectionDialog();
+                    if (string.IsNullOrEmpty(style)) return;
+
+                    var apiKey = GetApiKey();
+                    if (string.IsNullOrWhiteSpace(apiKey)) { MessageBox.Show("ΧΧ Χ ΧΧ¦Χ ΧΧ¤ΧªΧ— API", "BetterMeV2VSTO"); return; }
+
+                    ProgressForm dlg = new ProgressForm("ΧΧ Χ΅Χ— ΧΧ—Χ“Χ©... ΧΧ Χ Χ”ΧΧªΧ");
+                    dlg.Show();
+                    dlg.Refresh();
+
+                    string restyled;
+                    try
+                    {
+                        if (style.StartsWith("custom:"))
+                        {
+                            // ΧΧΆΧ‘Χ“ ΧΧª Χ”ΧΧΧ Χ”Χ—Χ•Χ¤Χ©Χ™
+                            var customPrompt = style.Substring("custom:".Length);
+                            restyled = await OpenAiSummarizer.ComposeNewEmailAsync(customPrompt, apiKey, "custom");
+                        }
+                        else
+                        {
+                            restyled = await OpenAiSummarizer.ComposeNewEmailAsync(currentBody, apiKey, style);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Χ©Χ’Χ™ΧΧ” Χ‘ΧΆΧ™Χ‘Χ•Χ“: " + ex.Message, "BetterMeV2VSTO");
+                        return;
+                    }
+                    finally
+                    {
+                        try { dlg?.Close(); } catch { }
+                    }
+
+                    var userName = GetUserDisplayName(app);
+                    restyled = EnsureSignature(restyled, userName);
+                    currentMail.HTMLBody = "<div style='direction:rtl;text-align:right;white-space:pre-wrap;font-family:Segoe UI,Arial,sans-serif;'>" + HtmlEncode(restyled) + "</div>";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Χ©Χ’Χ™ΧΧ”: " + ex.Message, "BetterMeV2VSTO");
+            }
         }
     }
 }

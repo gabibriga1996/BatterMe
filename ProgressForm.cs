@@ -5,35 +5,38 @@ using System.Windows.Forms;
 
 namespace BetterMeV2VSTO
 {
+    /// <summary>
+    /// חלון התקדמות (Loader) מותאם אישית המציג אנימציית טעינה, הודעת סטטוס וכפתור ביטול.
+    /// </summary>
     public class ProgressForm : Form
     {
         private Label _label;
         private Timer _animationTimer;
-        private int _rotation = 0;
+        private int _rotation;
         private Button _btnCancel;
         public bool IsCancelled { get; private set; }
         public event Action CancelRequested;
 
         public ProgressForm(string message)
         {
+            // בסיס
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.CenterScreen;
             ControlBox = false;
             ShowInTaskbar = false;
             TopMost = true;
-            Width = 320;
-            Height = 220; // extra space for cancel button
+            Width = 340;
+            Height = 240;
             BackColor = Color.White;
-            IsCancelled = false;
-            // Add subtle shadow effect
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
 
+            // תווית מצב
             _label = new Label
             {
                 AutoSize = false,
                 Width = 280,
                 Height = 60,
-                Left = 20,
+                Left = 30,
                 Top = 120,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font("Segoe UI", 11, FontStyle.Regular),
@@ -42,13 +45,12 @@ namespace BetterMeV2VSTO
             };
             Controls.Add(_label);
 
+            // כפתור ביטול
             _btnCancel = new Button
             {
                 Text = "בטל",
-                Width = 80,
-                Height = 30,
-                Left = (Width - 80) / 2 - 8, // adjust for form padding
-                Top = 170,
+                Width = 90,
+                Height = 32,
                 FlatStyle = FlatStyle.System
             };
             _btnCancel.Click += (s, e) =>
@@ -59,10 +61,26 @@ namespace BetterMeV2VSTO
             };
             Controls.Add(_btnCancel);
 
-            // Modern spinning animation
+            // מיקום ראשוני לאחר שהכפתור נוצר (לא לפני כן כדי למנוע NullReference)
+            PositionCancelButton();
+
+            // טיימר אנימציה
             _animationTimer = new Timer { Interval = 50 };
             _animationTimer.Tick += (s, e) => { _rotation = (_rotation + 12) % 360; Invalidate(); };
             _animationTimer.Start();
+        }
+
+        private void PositionCancelButton()
+        {
+            if (_btnCancel == null) return;
+            _btnCancel.Left = (ClientSize.Width - _btnCancel.Width) / 2;
+            _btnCancel.Top = ClientSize.Height - _btnCancel.Height - 20;
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            PositionCancelButton();
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -81,7 +99,8 @@ namespace BetterMeV2VSTO
                 using (var borderPen = new Pen(Color.FromArgb(230, 230, 230), 1))
                     g.DrawPath(borderPen, bgPath);
             }
-            DrawModernSpinner(g, new Point(Width / 2, 70), 25);
+            // מצייר ספינר אחד
+            DrawModernSpinner(g, new Point(Width / 2, 80), 25);
         }
 
         private void DrawModernSpinner(Graphics g, Point center, int radius)

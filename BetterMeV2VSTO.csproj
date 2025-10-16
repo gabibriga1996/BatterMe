@@ -214,6 +214,7 @@
     <Compile Include="BetterMeTaskPaneControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Logger.cs" />
     <Compile Include="ProgressForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -240,6 +241,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Ribbon1.cs" />
+    <Compile Include="Services\ApiKeyManager.cs" />
     <Compile Include="Services\OpenAiSummarizer.cs" />
     <Compile Include="Services\OpenAiTranscriber.cs" />
     <Compile Include="ThisAddIn.cs">

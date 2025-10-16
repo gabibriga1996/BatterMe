@@ -48,22 +48,34 @@ namespace BetterMeV2VSTO.Services
 
         public static async Task<string> SummarizeEmailAsync(string subject, string body, string apiKey)
         {
-            if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing AI API key.");
+            if (string.IsNullOrWhiteSpace(apiKey) || !ApiKeyManager.ValidateApiKey(apiKey))
+                throw new InvalidOperationException("Missing or invalid AI API key.");
 
             body = ValidateAndNormalizeBody(body ?? string.Empty);
             body = TrimToCompleteSentence(body, 14000);
 
-            var systemPrompt = "You are a professional email summarizer. Write a concise, coherent, and professional summary in Hebrew without bullets, asterisks, or fragmented sentences. Focus on: main message, primary purpose, time/location details (if any), and important action items. Output as 3-5 complete sentences in executive summary style. The summary must be continuous, without breaks or incomplete phrasings. Each sentence must be complete and end with a period.";
+            var systemPrompt = @"אתה מסכם מיילים מקצועי. יש ליצור תקציר בעברית שהוא:
+1. מדויק ונאמן לחלוטין למידע המקורי - אין להשמיט פרטים חשובים או לשנות את המשמעות
+2. תמציתי וממוקד - 3-5 משפטים שלמים בסגנון סיכום מנהלים
+3. רציף וקריא - ללא רשימות, סימני עיצוב או קטיעות
+4. בהיר ומקצועי - שפה רשמית, דקדוק תקין, פיסוק נכון
+
+יש להתמקד ב:
+- המסר העיקרי והמטרה המרכזית
+- פרטים חיוניים כמו תאריכים, מיקומים ואנשים
+- פעולות נדרשות או צעדים הבאים
+- שמירה על דיוק מוחלט של עובדות ונתונים
+
+אסור:
+- להשמיט או לשנות מידע מהותי
+- להוסיף פרשנות או מידע שלא מופיע במקור
+- להשתמש בסימני רשימה, כוכביות או עיצוב מיוחד
+- לקטוע משפטים או להשאיר רעיונות לא גמורים
+
+התוצאה חייבת להיות סיכום שלם, מדויק ומקצועי שמעביר את כל המידע החשוב בצורה תמציתית וברורה.";
 
             var userPrompt = new StringBuilder();
-            userPrompt.AppendLine("כתוב תקציר מקצועי, ברור ורציף של תוכן המייל להלן.");
-            userPrompt.AppendLine("התקציר צריך להיות מנוסח בשפה רשמית, ללא חזרות או קטעים קטועים, באורך של 3–5 משפטים.");
-            userPrompt.AppendLine("התמקד במסר המרכזי, מטרה עיקרית, פרטי זמן/מיקום (אם יש), והנחיות חשובות לפעולה.");
-            userPrompt.AppendLine("אל תכניס ניחושים או מידע שלא מופיע בטקסט.");
-            userPrompt.AppendLine("ציין זאת בצורה תמציתית כאילו מדובר בסיכום מנהלים (Executive Summary).");
-            userPrompt.AppendLine("התקציר חייב להיות רציף, ללא קטיעות או ניסוחים לא גמורים.");
-            userPrompt.AppendLine("כל משפט חייב להיות מלא ומסתיים בנקודה. אל תסיים משפטים באמצע מילה או ביטוי. אין להשתמש בקיצור 'דוא' – יש לכתוב תמיד 'דוא״ל' מלא.");
+            userPrompt.AppendLine("סכם את המייל הבא תוך הקפדה על כללי התמצות שהוגדרו.");
             if (!string.IsNullOrWhiteSpace(subject)) userPrompt.AppendLine("נושא: " + subject);
             userPrompt.AppendLine("תוכן:");
             userPrompt.AppendLine(body);
@@ -78,15 +90,14 @@ namespace BetterMeV2VSTO.Services
             var result = await PostChatAsync(requestJson, apiKey, "Empty summary returned.");
             if (!string.IsNullOrWhiteSpace(result) && !Regex.IsMatch(result.TrimEnd(), "[.!?]$"))
                 result += ".";
-            // Post-process to enforce continuity ("התקציר חייב להיות רציף, ללא קטיעות או ניסוחים לא גמורים")
             result = PostProcessExecutiveSummary(result);
             return result;
         }
 
         public static async Task<string> ComposeReplyAsync(string subject, string body, string apiKey)
         {
-            if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing AI API key.");
+            if (string.IsNullOrWhiteSpace(apiKey) || !ApiKeyManager.ValidateApiKey(apiKey))
+                throw new InvalidOperationException("Missing or invalid AI API key.");
 
             body = ValidateAndNormalizeBody(body ?? string.Empty);
             body = TrimToCompleteSentence(body, 14000);
@@ -113,8 +124,8 @@ namespace BetterMeV2VSTO.Services
 
         public static async Task<string> TranslateAsync(string text, string targetLangCode, string apiKey)
         {
-            if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing AI API key.");
+            if (string.IsNullOrWhiteSpace(apiKey) || !ApiKeyManager.ValidateApiKey(apiKey))
+                throw new InvalidOperationException("Missing or invalid AI API key.");
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
 
@@ -144,8 +155,8 @@ namespace BetterMeV2VSTO.Services
 
         public static async Task<string> ImproveDraftAsync(string draft, string apiKey)
         {
-            if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing AI API key.");
+            if (string.IsNullOrWhiteSpace(apiKey) || !ApiKeyManager.ValidateApiKey(apiKey))
+                throw new InvalidOperationException("Missing or invalid AI API key.");
             if (string.IsNullOrWhiteSpace(draft)) return string.Empty;
 
             draft = ValidateAndNormalizeBody(draft);
@@ -164,8 +175,8 @@ namespace BetterMeV2VSTO.Services
 
         public static async Task<string> ComposeNewEmailAsync(string userText, string apiKey, string style = "professional")
         {
-            if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("Missing AI API key.");
+            if (string.IsNullOrWhiteSpace(apiKey) || !ApiKeyManager.ValidateApiKey(apiKey))
+                throw new InvalidOperationException("Missing or invalid AI API key.");
             if (string.IsNullOrWhiteSpace(userText))
                 return string.Empty;
 
@@ -185,6 +196,19 @@ namespace BetterMeV2VSTO.Services
                     systemPrompt = "אתה עוזר בכתיבת מיילים בעברית. נסח מחדש את הטקסט כך שיהיה מפורט ומוסבר יותר, תוך הוספת הקשר ופרטים רלוונטיים. שמור על טון מקצועי.";
                     userPrompt = "נסח את המייל מחדש כך שיהיה מפורט ומוסבר יותר:\n" + userText;
                     break;
+                case "custom":
+                    systemPrompt = @"אתה פועל כמערכת openROUTER לכתיבת מענה AI למייל.
+
+כאשר המשתמש בוחר באפשרות של כתיבה חופשית:
+- הצג חלונית עריכה גדולה מהרגיל.
+- מחק את כל המלל הקיים (תשובה קודמת של AI).
+- קרא את הבקשה החדשה של המשתמש ובצע חיפוש מידע אמין ועדכני.
+- ערוך תשובה מקצועית, מסודרת, תקינה לשונית ובפסקאות – כולל פתיחה, גוף וסיום.
+
+הקפד על שפה תקינה, מבנה מייל פורמלי, בהירות והיגיון.
+אין להשתמש בסימני Markdown, סולמיות (#), קווים (---) או עיצוב לא רשמי. כל כותרת תופיע כטקסט רגיל, ללא עיצוב מיוחד.";
+                    userPrompt = userText;
+                    break;
                 default: // professional
                     systemPrompt = "אתה עוזר מקצועי בכתיבת מיילים בעברית. נסח מחדש את הטקסט כך שיהיה רשמי, ברור ומקצועי. ודא שהטקסט רציף, ללא חיתוכים, וכתוב בעברית תקנית. אל תוסיף חתימה - זה יתווסף בנפרד.";
                     userPrompt = "נסח מחדש את תוכן המייל שלהלן כך שיהיה רשמי, ברור ומקצועי:\n" + userText;
@@ -194,14 +218,44 @@ namespace BetterMeV2VSTO.Services
             var requestJson = BuildChatRequestJson(
                 model: DefaultModel,
                 temperature: 0.3,
-                maxTokens: 800,
+                maxTokens: style.ToLowerInvariant() == "custom" ? 2000 : 800, // יותר טוקנים למלל חופשי
                 systemPrompt: systemPrompt,
                 userPrompt: userPrompt);
 
             var result = await PostChatAsync(requestJson, apiKey, "Empty email composition returned.");
             if (!string.IsNullOrWhiteSpace(result) && !Regex.IsMatch(result.TrimEnd(), "[.!?]$"))
                 result += ".";
+            if (style.ToLowerInvariant() == "custom")
+                result = PostProcessRemoveMarkdownAndHeadings(result);
             return result;
+        }
+
+        // מסיר כותרות Markdown, קווים וסולמיות, ממיר כותרות לפסקאות מודגשות
+        private static string PostProcessRemoveMarkdownAndHeadings(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return text;
+            var lines = text.Replace("\r", "").Split('\n');
+            var sb = new StringBuilder();
+            foreach (var line in lines)
+            {
+                var l = line.Trim();
+                if (string.IsNullOrEmpty(l)) { sb.AppendLine(); continue; }
+                // הסר קווים (---)
+                if (Regex.IsMatch(l, "^[-]{3,}$")) continue;
+                // הסר כותרות Markdown (### ...)
+                var headingMatch = Regex.Match(l, "^#+\\s*(.*)$");
+                if (headingMatch.Success)
+                {
+                    // הצג כותרת כטקסט רגיל, מודגש (או פשוט רגיל)
+                    sb.AppendLine(headingMatch.Groups[1].Value.Trim());
+                    sb.AppendLine();
+                    continue;
+                }
+                // הסר סולמיות בודדות
+                if (l.StartsWith("#")) l = l.TrimStart('#').Trim();
+                sb.AppendLine(l);
+            }
+            return sb.ToString().Trim();
         }
 
         private static string BuildChatRequestJson(string model, double temperature, int maxTokens, string systemPrompt, string userPrompt)
